@@ -176,7 +176,7 @@ constexpr bool general_product() {
 
 template <class A, class B, class C>
 constexpr bool gemm() {
-  return matrix_matrix_product_shaped<A, B, uncvref_t<C>>() &&
+  return //matrix_matrix_product_shaped<A, B, uncvref_t<C>>() &&
          linear_algebra::concept::weak_general_matrix<A>() &&
          linear_algebra::concept::weak_general_matrix<B>() &&
          !linear_algebra::concept::column_vector<C>();
@@ -274,6 +274,26 @@ constexpr bool right_symv() {
 template <class A, class B, class C>
 constexpr bool symv() {
   return left_symv<A, B, C>() || right_symv<A, B, C>();
+}
+
+//////////
+// trsm //
+//////////
+
+template<class A, class B>
+constexpr bool trsm() {
+  return linear_algebra::concept::weak_triangular_matrix<A>() &&
+    linear_algebra::concept::modifiable_general_matrix_forward<B>();
+}
+
+//////////
+// trsv //
+//////////
+
+template <class A, class X>
+constexpr bool trsv() {
+  return linear_algebra::concept::weak_triangular_matrix<A>() &&
+         linear_algebra::concept::modifiable_column_vector_forward<X>();
 }
 
 /////////////

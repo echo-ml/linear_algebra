@@ -1,6 +1,7 @@
 #pragma once
 
 #include <echo/linear_algebra/structure.h>
+#include <echo/linear_algebra/matrix_traits.h>
 #include <echo/numeric_array.h>
 
 namespace echo {
@@ -31,10 +32,23 @@ constexpr bool square_matrix_shape() {
 // matrix //
 ////////////
 
+namespace detail {
+namespace concept {
+struct Matrix : Concept {
+  template <class T>
+  auto require(T&& x) -> list<k_array::concept::k_array<2, T>(),
+                              numeric_array::concept::numeric_array<T>(),
+                              matrix_traits::operation<T>() ==
+                                  execution_context::matrix_operation_t::none>;
+};
+}
+}
+
 template <class T>
 constexpr bool matrix() {
-  return k_array::concept::k_array<2, T>() &&
-         numeric_array::concept::numeric_array<T>();
+  return models<detail::concept::Matrix, T>();
+  // return k_array::concept::k_array<2, T>() &&
+  //        numeric_array::concept::numeric_array<T>();
 }
 
 /////////////////////
@@ -47,8 +61,10 @@ struct OperatedMatrix : Concept {
   template <class T>
   auto require(T&& x)
       -> list<echo::concept::contiguous_iterator<decltype(x.data())>(),
-              k_array::concept::k_shape<2, decltype(x.shape())>(),
-              same<execution_context::matrix_operation_t, T::operation>(),
+              k_array::concept::k_shape<2, uncvref_t<decltype(x.shape())>>(),
+              valid<decltype(T::operation)>(),
+              same<execution_context::matrix_operation_t,
+                   uncvref_t<decltype(T::operation)>>(),
               execution_context::concept::k_compatible_evaluator<
                   2, decltype(x.evaluator())>(),
               execution_context::concept::structure<typename T::structure>()>;
