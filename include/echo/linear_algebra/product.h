@@ -216,32 +216,40 @@ template <
         execution_context::concept::blas_executer<ExecutionContext>() &&
         execution_context::concept::allocation_backend<ExecutionContext>() &&
         blas::concept::product<A, B, C>())>
-auto product(const ExecutionContext& execution_context,
-             k_array_traits::value_type<A> alpha, const A& a, const B& b,
-             const C& c) {
-  return product(execution_context, alpha, a, b, 0, c);
-}
-
-template <
-    class ExecutionContext, class A, class B, class C,
-    CONCEPT_REQUIRES(
-        execution_context::concept::blas_executer<ExecutionContext>() &&
-        execution_context::concept::allocation_backend<ExecutionContext>() &&
-        blas::concept::product<A, B, C>())>
 auto product(const ExecutionContext& execution_context, const A& a, const B& b,
              k_array_traits::value_type<A> beta, const C& c) {
   return product(execution_context, 1, a, b, beta, c);
 }
 
 template <
-    class ExecutionContext, class A, class B, class C,
+    class ExecutionContext, class A, class B,
     CONCEPT_REQUIRES(
         execution_context::concept::blas_executer<ExecutionContext>() &&
         execution_context::concept::allocation_backend<ExecutionContext>() &&
-        blas::concept::product<A, B, C>())>
-auto product(const ExecutionContext& execution_context, const A& a, const B& b,
-             const C& c) {
-  return product(execution_context, 1, a, b, 0, c);
+        blas::concept::product<A, B>())>
+auto product(const ExecutionContext& execution_context,
+             k_array_traits::value_type<A> alpha, const A& a, const B& b) {
+  using Scalar = k_array_traits::value_type<A>;
+  using Structure = structure::product<
+    numeric_array_traits::structure<A>,
+    numeric_array_traits::structure<B>
+  >;
+  auto c_shape = make_k_shape(get_extent<0>(a), get_extent<1>(b));
+  auto allocator = make_aligned_allocator<Scalar>(execution_context);
+  NumericArray<Scalar, decltype(c_shape), Structure, decltype(allocator)>
+    result(c_shape, allocator);
+  emplace_product(execution_context, alpha, a, b, 0, result);
+  return result;
+}
+
+template <
+    class ExecutionContext, class A, class B, 
+    CONCEPT_REQUIRES(
+        execution_context::concept::blas_executer<ExecutionContext>() &&
+        execution_context::concept::allocation_backend<ExecutionContext>() &&
+        blas::concept::product<A, B>())>
+auto product(const ExecutionContext& execution_context, const A& a, const B& b) {
+  return product(execution_context, 1, a, b);
 }
 }
 }

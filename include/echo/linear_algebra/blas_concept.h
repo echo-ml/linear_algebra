@@ -14,6 +14,12 @@ namespace concept {
 namespace detail {
 namespace blas_concept {
 struct CompatibleProductShapes : Concept {
+  template <class A, class B>
+  auto require(A&&, B && ) -> list<same<k_array_traits::extent_type<1, A>,
+                                        k_array_traits::extent_type<0, B>>()
+
+                                   >;
+
   template <class A, class B, class C>
   auto require(A&&, B&&, C && )
       -> list<same<k_array_traits::extent_type<0, A>,
@@ -24,6 +30,11 @@ struct CompatibleProductShapes : Concept {
                    k_array_traits::extent_type<1, C>>()>;
 };
 }
+}
+
+template <class A, class B>
+constexpr bool compatible_product_shapes() {
+  return models<detail::blas_concept::CompatibleProductShapes, A, B>();
 }
 
 template <class A, class B, class C>
@@ -66,12 +77,21 @@ constexpr bool matrix_strided() {
 namespace detail {
 namespace blas_concept {
 struct CompatibleProductValues : Concept {
+  template <class A, class B>
+  auto require(A&&, B && ) -> list<
+      same<k_array_traits::value_type<A>, k_array_traits::value_type<B>>()>;
+
   template <class A, class B, class C>
   auto require(A&&, B&&, C && ) -> list<
       same<k_array_traits::value_type<A>, k_array_traits::value_type<B>>(),
       same<k_array_traits::value_type<C>, k_array_traits::value_type<B>>()>;
 };
 }
+}
+
+template <class A, class B>
+constexpr bool compatible_product_values() {
+  return models<detail::blas_concept::CompatibleProductValues, A, B>();
 }
 
 template <class A, class B, class C>
@@ -86,6 +106,11 @@ constexpr bool compatible_product_values() {
 namespace detail {
 namespace blas_concept {
 struct MatrixMatrixProductShaped : Concept {
+  template <class A, class B>
+  auto require(A&&, B && )
+      -> list<compatible_product_shapes<A, B>(), matrix_strided<A>(),
+              matrix_strided<B>(), compatible_product_values<A, B>()>;
+
   template <class A, class B, class C>
   auto require(A&&, B&&, C && )
       -> list<compatible_product_shapes<A, B, C>(), matrix_strided<A>(),
@@ -93,6 +118,11 @@ struct MatrixMatrixProductShaped : Concept {
               compatible_product_values<A, B, C>()>;
 };
 }
+}
+
+template <class A, class B>
+constexpr bool matrix_matrix_product_shaped() {
+  return models<detail::blas_concept::MatrixMatrixProductShaped, A, B>();
 }
 
 template <class A, class B, class C>
@@ -107,12 +137,23 @@ constexpr bool matrix_matrix_product_shaped() {
 namespace detail {
 namespace blas_concept {
 struct MatrixVectorProductShaped : Concept {
+  template<class A, class X>
+  auto require(A&&, X&&) -> list<
+    compatible_product_shapes<A, X>(), matrix_strided<A>(),
+    compatible_product_values<A, X>()
+  >;
+
   template <class A, class X, class Y>
   auto require(A&&, X&&, Y && )
       -> list<compatible_product_shapes<A, X, Y>(), matrix_strided<A>(),
               compatible_product_values<A, X, Y>()>;
 };
 }
+}
+
+template<class A, class X>
+constexpr bool matrix_vector_product_shaped() {
+  return models<detail::blas_concept::MatrixVectorProductShaped, A, X>();
 }
 
 template <class A, class X, class Y>
@@ -141,27 +182,17 @@ constexpr bool product_dimensioned() {
                       k_array_traits::value_type<C>>::value;
 }
 
-////////////////////////////////
-// matrix_dimensioned_product //
-////////////////////////////////
-
-template <class A, class B, class C>
-constexpr bool matrix_dimensioned_product() {
-  return false;
-}
-
-////////////////////////////////
-// vector_dimensioned_product //
-////////////////////////////////
-
-template <class A, class X, class Y>
-constexpr bool vector_dimensioned_product() {
-  return false;
-}
-
 //////////
 // gemm //
 //////////
+
+template<class A, class B>
+constexpr bool gemm() {
+  return matrix_matrix_product_shaped<A, B>() &&
+         linear_algebra::concept::weak_general_matrix<A>() &&
+         linear_algebra::concept::weak_general_matrix<B>() &&
+         !linear_algebra::concept::column_vector<B>();
+}
 
 template <class A, class B, class C>
 constexpr bool gemm() {
@@ -176,6 +207,14 @@ constexpr bool gemm() {
 // gemv //
 //////////
 
+template <class A, class X>
+constexpr bool gemv() {
+  return matrix_vector_product_shaped<A, X>() &&
+         linear_algebra::concept::weak_general_matrix<A>() &&
+         linear_algebra::concept::weak_general_matrix<X>() &&
+         linear_algebra::concept::column_vector<X>();
+}
+
 template <class A, class X, class Y>
 constexpr bool gemv() {
   return matrix_vector_product_shaped<A, X, Y>() &&
@@ -187,6 +226,14 @@ constexpr bool gemv() {
 ///////////////
 // left_symm //
 ///////////////
+
+template <class A, class B>
+constexpr bool left_symm() {
+  return matrix_matrix_product_shaped<A, B>() &&
+         linear_algebra::concept::symmetric_matrix<A>() &&
+         linear_algebra::concept::general_matrix<B>() &&
+         !linear_algebra::concept::column_vector<B>();
+}
 
 template <class A, class B, class C>
 constexpr bool left_symm() {
@@ -201,6 +248,14 @@ constexpr bool left_symm() {
 // right_symm //
 ////////////////
 
+template <class A, class B>
+constexpr bool right_symm() {
+  return matrix_matrix_product_shaped<A, B>() &&
+         linear_algebra::concept::general_matrix<A>() &&
+         linear_algebra::concept::symmetric_matrix<B>() &&
+         !linear_algebra::concept::column_vector<B>();
+}
+
 template <class A, class B, class C>
 constexpr bool right_symm() {
   return matrix_matrix_product_shaped<A, B, C>() &&
@@ -214,6 +269,11 @@ constexpr bool right_symm() {
 // symm //
 //////////
 
+template <class A, class B>
+constexpr bool symm() {
+  return left_symm<A, B>() || right_symm<A, B>();
+}
+
 template <class A, class B, class C>
 constexpr bool symm() {
   return left_symm<A, B, C>() || right_symm<A, B, C>();
@@ -222,6 +282,13 @@ constexpr bool symm() {
 //////////
 // symv //
 //////////
+
+template <class A, class X>
+constexpr bool symv() {
+  return matrix_vector_product_shaped<A, X>() &&
+         linear_algebra::concept::symmetric_matrix<A>() &&
+         linear_algebra::concept::column_vector<X>();
+}
 
 template <class A, class X, class Y>
 constexpr bool symv() {
@@ -254,6 +321,12 @@ constexpr bool trsv() {
 /////////////
 // product //
 /////////////
+
+template <class A, class B>
+constexpr bool product() {
+  return gemm<A, B>() || gemv<A, B>() || symm<A, B>() ||
+         symv<A, B>();
+}
 
 template <class A, class B, class C>
 constexpr bool product() {

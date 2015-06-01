@@ -35,7 +35,7 @@ TEST_CASE("general product") {
     ARRAY_EQUAL(m3, {{16, 34, 52, 70}, {22, 49, 76, 103}});
   }
   SECTION("normal product") {
-    auto m = product(executer, m1, m2, make_cview(m3));
+    auto m = product(executer, m1, m2);
     ARRAY_EQUAL(m, {{16, 34, 52, 70}, {22, 49, 76, 103}});
   }
   
