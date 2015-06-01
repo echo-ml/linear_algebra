@@ -308,6 +308,7 @@ constexpr bool trsm() {
          linear_algebra::concept::modifiable_general_matrix_forward<B>();
 }
 
+
 //////////
 // trsv //
 //////////
