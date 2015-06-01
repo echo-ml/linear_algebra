@@ -3,6 +3,7 @@
 #include <echo/linear_algebra/concept.h>
 #include <echo/linear_algebra/structure.h>
 #include <echo/linear_algebra/matrix_accessor.h>
+#include <echo/linear_algebra/matrix_initializer.h>
 #include <echo/execution_context.h>
 #include <echo/numeric_array.h>
 

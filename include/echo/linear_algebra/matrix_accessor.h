@@ -11,14 +11,14 @@ namespace numeric_array {
 // NumericArrayConstAccessor //
 ///////////////////////////////
 
-template<class Derived, class BaseArray, class Shape>
+template <class Derived, class BaseArray, class Shape>
 struct NumericArrayConstAccessor<Derived, BaseArray, Shape,
-  linear_algebra::structure::matrix_general>
-  : NumericArrayConstAccessor<Derived, BaseArray, Shape,
-      execution_context::structure::general>
-{
+                                 linear_algebra::structure::matrix_general>
+    : NumericArrayConstAccessor<Derived, BaseArray, Shape,
+                                execution_context::structure::general> {
   using NumericArrayConstAccessor<Derived, BaseArray, Shape,
-    execution_context::structure::general>::operator();
+                                  execution_context::structure::general>::
+  operator();
 
   CONCEPT_MEMBER_REQUIRES(shape_traits::fixed_dimension<1, Shape>())
   decltype(auto) operator()(access_mode::readonly_t, index_t i) const {
@@ -51,38 +51,38 @@ struct NumericArrayConstAccessor<Derived, BaseArray, Shape,
   }
 
   CONCEPT_MEMBER_REQUIRES(shape_traits::fixed_dimension<1, Shape>())
-  decltype(auto) operator()(index_t i) const {
-    return this->operator()(i, 0);
-  }
+  decltype(auto) operator()(index_t i) const { return this->operator()(i, 0); }
 
   CONCEPT_MEMBER_REQUIRES(shape_traits::fixed_dimension<0, Shape>())
-  decltype(auto) operator()(index_t j) const {
-    return this->operator()(0, j);
-  }
+  decltype(auto) operator()(index_t j) const { return this->operator()(0, j); }
 };
 
 template <class Derived, class BaseArray, class Shape>
 struct NumericArrayConstAccessor<Derived, BaseArray, Shape,
                                  linear_algebra::structure::lower_symmetric> {
-  decltype(auto) operator()(access_mode::readonly_t, index_t i,
-                            index_t j) const {
+  decltype(auto) operator()(access_mode::readonly_t, index_t i_prime,
+                            index_t j_prime) const {
     const Derived& derived = static_cast<const Derived&>(*this);
-    std::tie(i, j) = std::minmax(i, j);
+    index_t i, j;
+    std::tie(i, j) = std::minmax(i_prime, j_prime);
     return derived.BaseArray::operator()(j, i);
   }
-  decltype(auto) operator()(access_mode::readwrite_t, index_t i,
-                            index_t j) const {
-    Derived& derived = static_cast<Derived&>(*this);
-    std::tie(i, j) = std::minmax(i, j);
+  decltype(auto) operator()(access_mode::readwrite_t, index_t i_prime,
+                            index_t j_prime) const {
+    const Derived& derived = static_cast<const Derived&>(*this);
+    index_t i, j;
+    std::tie(i, j) = std::minmax(i_prime, j_prime);
     return derived.BaseArray::operator()(j, i);
   }
-  decltype(auto) operator()(access_mode::raw_t, index_t i, index_t j) const {
+  decltype(auto) operator()(access_mode::raw_t, index_t i_prime,
+                            index_t j_prime) const {
     Derived& derived = static_cast<Derived&>(*this);
-    std::tie(i, j) = std::minmax(i, j);
+    index_t i, j;
+    std::tie(i, j) = std::minmax(i_prime, j_prime);
     return derived.BaseArray::operator()(j, i);
   }
   decltype(auto) operator()(index_t i, index_t j) const {
-    return this->operator()(access_mode::readonly, i, j);
+    return this->operator()(access_mode::readwrite, i, j);
   }
 };
 
@@ -92,15 +92,14 @@ struct NumericArrayConstAccessor<Derived, BaseArray, Shape,
   decltype(auto) operator()(access_mode::readonly_t, index_t i,
                             index_t j) const {
     const Derived& derived = static_cast<const Derived&>(*this);
-    if (i < j)
-      return 0;
-    else
-      return derived.BaseArray::operator()(i, j);
+    k_array_traits::value_type<BaseArray> result = 0;
+    if (i >= j) result = derived.BaseArray::operator()(i, j);
+    return result;
   }
   decltype(auto) operator()(access_mode::readwrite_t, index_t i,
                             index_t j) const {
     assert(i >= j && "can't access upper part of matrix");
-    Derived& derived = static_cast<Derived&>(*this);
+    const Derived& derived = static_cast<const Derived&>(*this);
     return derived.BaseArray::operator()(i, j);
   }
   decltype(auto) operator()(access_mode::raw_t, index_t i, index_t j) const {
@@ -119,20 +118,19 @@ struct NumericArrayConstAccessor<Derived, BaseArray, Shape,
   decltype(auto) operator()(access_mode::readonly_t, index_t i,
                             index_t j) const {
     const Derived& derived = static_cast<const Derived&>(*this);
-    if (i > j)
-      return 0;
-    else
-      return derived.BaseArray::operator()(i, j);
+    k_array_traits::value_type<BaseArray> result = 0;
+    if (i <= j) result = derived.BaseArray::operator()(i, j);
+    return result;
   }
   decltype(auto) operator()(access_mode::readwrite_t, index_t i,
                             index_t j) const {
     assert(i <= j && "can't access lower part of matrix");
-    Derived& derived = static_cast<Derived&>(*this);
+    const Derived& derived = static_cast<const Derived&>(*this);
     return derived.BaseArray::operator()(i, j);
   }
   decltype(auto) operator()(access_mode::raw_t, index_t i, index_t j) const {
     assert(i <= j && "can't access lower part of matrix");
-    Derived& derived = static_cast<Derived&>(*this);
+    const Derived& derived = static_cast<const Derived&>(*this);
     return derived.BaseArray::operator()(i, j);
   }
   decltype(auto) operator()(index_t i, index_t j) const {

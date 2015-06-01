@@ -15,7 +15,7 @@ using namespace echo::linear_algebra;
 
 const execution_context::intel::ExecutionContext executer{};
 
-TEST_CASE("product") {
+TEST_CASE("general product") {
   Matrix<double, KShape<2, 3>> m1;
   Matrix<double, KShape<3, 4>> m2;
   Matrix<double, KShape<2, 4>> m3;
@@ -30,19 +30,26 @@ TEST_CASE("product") {
         slice(m2.shape(), 2_index, 3_index) 
     );
   
-  SECTION("normal product") {
+  SECTION("normal emplace product") {
     emplace_product(executer, m1, m2, m3);
     ARRAY_EQUAL(m3, {{16, 34, 52, 70}, {22, 49, 76, 103}});
   }
+  SECTION("normal product") {
+    auto m = product(executer, m1, m2, make_cview(m3));
+    ARRAY_EQUAL(m, {{16, 34, 52, 70}, {22, 49, 76, 103}});
+  }
   
-  SECTION("transposed product") {
+  SECTION("transposed emplace product") {
     emplace_product(executer, transpose(m2), transpose(m1), m4);
     ARRAY_EQUAL(m4, {{16, 22}, {34, 49}, {52, 76}, {70, 103}});
   }
 
-  SECTION("strided product") {
+  SECTION("strided emplace product") {
     emplace_product(executer, v2, transpose(m1), m5);
     ARRAY_EQUAL(m5, {{36, 48}, {42, 57}});
   }
 
+}
+
+TEST_CASE("symmetric product") {
 }

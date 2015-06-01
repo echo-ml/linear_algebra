@@ -47,8 +47,25 @@ struct Matrix : Concept {
 template <class T>
 constexpr bool matrix() {
   return models<detail::concept::Matrix, T>();
-  // return k_array::concept::k_array<2, T>() &&
-  //        numeric_array::concept::numeric_array<T>();
+}
+
+///////////////////////////////
+// modifiable_matrix_forward //
+///////////////////////////////
+
+namespace detail { namespace concept {
+struct ModifiableMatrixForward : Concept {
+  template<class T>
+  auto require(T&& x) -> list<
+    matrix<uncvref_t<T>>(),
+    echo::concept::writable<decltype(x.data())>()
+  >;
+};
+}}
+
+template<class T>
+constexpr bool modifiable_matrix_forward() {
+  return models<detail::concept::ModifiableMatrixForward, T>();
 }
 
 /////////////////////

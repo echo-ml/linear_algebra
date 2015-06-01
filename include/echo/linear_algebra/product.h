@@ -35,7 +35,8 @@ auto get_leading_dimension(const A& a) {
 template <class ExecutionContext, class A, class B, class C,
           CONCEPT_REQUIRES(
               execution_context::concept::blas_executer<ExecutionContext>() &&
-              blas::concept::gemm<A, B, C>())>
+              blas::concept::gemm<A, B, uncvref_t<C>>() &&
+              linear_algebra::concept::modifiable_matrix_forward<C>())>
 auto emplace_product(const ExecutionContext& execution_context,
                      k_array_traits::value_type<A> alpha, const A& a,
                      const B& b, k_array_traits::value_type<A> beta, C&& c) {
@@ -68,7 +69,8 @@ auto emplace_product(const ExecutionContext& execution_context,
 template <class ExecutionContext, class A, class X, class Y,
           CONCEPT_REQUIRES(
               execution_context::concept::blas_executer<ExecutionContext>() &&
-              blas::concept::gemv<A, X, Y>())>
+              blas::concept::gemv<A, X, uncvref_t<Y>>() &&
+              linear_algebra::concept::modifiable_matrix_forward<Y>())>
 auto emplace_product(const ExecutionContext& execution_context,
                      k_array_traits::value_type<A> alpha, const A& a,
                      const X& x, k_array_traits::value_type<A> beta, Y&& y) {
@@ -97,7 +99,8 @@ auto emplace_product(const ExecutionContext& execution_context,
 template <class ExecutionContext, class A, class B, class C,
           CONCEPT_REQUIRES(
               execution_context::concept::blas_executer<ExecutionContext>() &&
-              blas::concept::left_symm<A, B, C>())>
+              blas::concept::left_symm<A, B, uncvref_t<C>>() &&
+              linear_algebra::concept::modifiable_matrix_forward<C>())>
 auto emplace_product(const ExecutionContext& execution_context,
                      k_array_traits::value_type<A> alpha, const A& a,
                      const B& b, k_array_traits::value_type<A> beta, C&& c) {
@@ -123,11 +126,11 @@ auto emplace_product(const ExecutionContext& execution_context,
   return make_matrix_view(c);
 }
 
-// symv
 template <class ExecutionContext, class A, class B, class C,
           CONCEPT_REQUIRES(
               execution_context::concept::blas_executer<ExecutionContext>() &&
-              blas::concept::right_symm<A, B, C>())>
+              blas::concept::right_symm<A, B, uncvref_t<C>>() &&
+              linear_algebra::concept::modifiable_matrix_forward<C>())>
 auto emplace_product(const ExecutionContext& execution_context,
                      k_array_traits::value_type<A> alpha, const A& a,
                      const B& b, k_array_traits::value_type<A> beta, C&& c) {
@@ -156,7 +159,8 @@ auto emplace_product(const ExecutionContext& execution_context,
 template <class ExecutionContext, class A, class B, class C,
           CONCEPT_REQUIRES(
               execution_context::concept::blas_executer<ExecutionContext>() &&
-              blas::concept::product<A, B, C>())>
+              blas::concept::product<A, B, uncvref_t<C>>() &&
+              linear_algebra::concept::modifiable_matrix_forward<C>())>
 auto emplace_product(const ExecutionContext& execution_context,
                      k_array_traits::value_type<A> alpha, const A& a,
                      const B& b, C&& c) {
@@ -166,7 +170,8 @@ auto emplace_product(const ExecutionContext& execution_context,
 template <class ExecutionContext, class A, class B, class C,
           CONCEPT_REQUIRES(
               execution_context::concept::blas_executer<ExecutionContext>() &&
-              blas::concept::product<A, B, C>())>
+              blas::concept::product<A, B, uncvref_t<C>>() &&
+              linear_algebra::concept::modifiable_matrix_forward<C>())>
 auto emplace_product(const ExecutionContext& execution_context, const A& a,
                      const B& b, k_array_traits::value_type<A> beta, C&& c) {
   return emplace_product(execution_context, 1, a, b, beta, c);
@@ -175,7 +180,8 @@ auto emplace_product(const ExecutionContext& execution_context, const A& a,
 template <class ExecutionContext, class A, class B, class C,
           CONCEPT_REQUIRES(
               execution_context::concept::blas_executer<ExecutionContext>() &&
-              blas::concept::product<A, B, C>())>
+              blas::concept::product<A, B, uncvref_t<C>>() &&
+              linear_algebra::concept::modifiable_matrix_forward<C>())>
 auto emplace_product(const ExecutionContext& execution_context, const A& a,
                      const B& b, C&& c) {
   return emplace_product(execution_context, 1, a, b, 0, c);
@@ -197,7 +203,7 @@ auto product(const ExecutionContext& execution_context,
   using Scalar = k_array_traits::value_type<A>;
   using Structure = numeric_array_traits::structure<C>;
   auto c_shape = c.shape();
-  auto allocator = alligned_allocator(execution_context);
+  auto allocator = make_aligned_allocator<Scalar>(execution_context);
   NumericArray<Scalar, decltype(c_shape), Structure, decltype(allocator)>
       result(c_shape, allocator);
   emplace_product(execution_context, alpha, a, b, beta, result);
