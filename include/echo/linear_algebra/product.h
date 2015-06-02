@@ -120,10 +120,10 @@ auto emplace_product(const ExecutionContext& execution_context,
   assert(a_n == b_m);
   assert(b_n == c_n);
 
-  execution_context->symm(execution_context::matrix_side_t::left,
-                          A::storage_uplo, a_m, b_n, alpha, a.data(), lda,
-                          b.data(), ldb, beta, c.data(), ldc);
-  return make_matrix_view(c);
+  execution_context.symm(execution_context::matrix_side_t::left,
+                         A::structure::storage_uplo, a_m, b_n, alpha, a.data(), lda,
+                         b.data(), ldb, beta, c.data(), ldc);
+  return make_view(c);
 }
 
 template <class ExecutionContext, class A, class B, class C,
@@ -150,10 +150,10 @@ auto emplace_product(const ExecutionContext& execution_context,
   assert(a_n == b_m);
   assert(b_n == c_n);
 
-  execution_context->symm(execution_context::matrix_side_t::right,
-                          B::storage_uplo, a_m, b_n, alpha, b.data(), ldb,
-                          a.data(), lda, beta, c.data(), ldc);
-  return make_matrix_view(c);
+  execution_context.symm(execution_context::matrix_side_t::right,
+                         B::structure::storage_uplo, a_m, b_n, alpha, b.data(),
+                         ldb, a.data(), lda, beta, c.data(), ldc);
+  return make_view(c);
 }
 
 template <class ExecutionContext, class A, class B, class C,
@@ -195,6 +195,7 @@ template <
     class ExecutionContext, class A, class B, class C,
     CONCEPT_REQUIRES(
         execution_context::concept::blas_executer<ExecutionContext>() &&
+        execution_context::concept::expression_executer<ExecutionContext>() &&
         execution_context::concept::allocation_backend<ExecutionContext>() &&
         blas::concept::product<A, B, C>())>
 auto product(const ExecutionContext& execution_context,
@@ -206,6 +207,7 @@ auto product(const ExecutionContext& execution_context,
   auto allocator = make_aligned_allocator<Scalar>(execution_context);
   NumericArray<Scalar, decltype(c_shape), Structure, decltype(allocator)>
       result(c_shape, allocator);
+  copy(execution_context, c, result);
   emplace_product(execution_context, alpha, a, b, beta, result);
   return result;
 }
@@ -214,6 +216,7 @@ template <
     class ExecutionContext, class A, class B, class C,
     CONCEPT_REQUIRES(
         execution_context::concept::blas_executer<ExecutionContext>() &&
+        execution_context::concept::expression_executer<ExecutionContext>() &&
         execution_context::concept::allocation_backend<ExecutionContext>() &&
         blas::concept::product<A, B, C>())>
 auto product(const ExecutionContext& execution_context, const A& a, const B& b,

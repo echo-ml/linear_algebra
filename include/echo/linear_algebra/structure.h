@@ -140,8 +140,8 @@ namespace structure {
 template <class Structure>
 auto product_impl(Structure, Structure) -> Structure;
 
-auto product_impl(diagonal, general) -> general;
-auto product_impl(general, diagonal) -> general;
+auto product_impl(diagonal, matrix_general) -> matrix_general;
+auto product_impl(matrix_general, diagonal) -> matrix_general;
 
 template <class T,
           CONCEPT_REQUIRES(concept::symmetric<T>() || concept::hermitian<T>())>
@@ -159,11 +159,11 @@ auto product_impl(T, diagonal) -> T;
 
 template <class T,
           CONCEPT_REQUIRES(concept::symmetric<T>() || concept::triangular<T>())>
-auto product_impl(general, T) -> general;
+auto product_impl(matrix_general, T) -> matrix_general;
 
 template <class T,
           CONCEPT_REQUIRES(concept::symmetric<T>() || concept::triangular<T>())>
-auto product_impl(T, general) -> general;
+auto product_impl(T, matrix_general) -> matrix_general;
 }
 }
 
