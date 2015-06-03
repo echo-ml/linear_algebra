@@ -252,8 +252,7 @@ template <class A, class B>
 constexpr bool right_symm() {
   return matrix_matrix_product_shaped<A, B>() &&
          linear_algebra::concept::general_matrix<A>() &&
-         linear_algebra::concept::symmetric_matrix<B>() &&
-         !linear_algebra::concept::column_vector<B>();
+         linear_algebra::concept::symmetric_matrix<B>();
 }
 
 template <class A, class B, class C>
@@ -261,8 +260,7 @@ constexpr bool right_symm() {
   return matrix_matrix_product_shaped<A, B, C>() &&
          linear_algebra::concept::general_matrix<A>() &&
          linear_algebra::concept::symmetric_matrix<B>() &&
-         linear_algebra::concept::general_matrix<C>() &&
-         !linear_algebra::concept::column_vector<C>();
+         linear_algebra::concept::general_matrix<C>();
 }
 
 //////////
@@ -298,16 +296,37 @@ constexpr bool symv() {
          linear_algebra::concept::column_vector<Y>();
 }
 
+///////////////
+// left_trsm //
+//////////////
+
+template <class A, class B>
+constexpr bool left_trsm() {
+  return matrix_matrix_product_shaped<A, B, B>() &&
+         linear_algebra::concept::weak_triangular_matrix<A>() &&
+         linear_algebra::concept::general_matrix<B>() &&
+         !linear_algebra::concept::column_vector<B>();
+}
+
+////////////////
+// right_trsm //
+////////////////
+
+template<class A, class B>
+constexpr bool right_trsm() {
+  return matrix_matrix_product_shaped<B, A, B>() &&
+    linear_algebra::concept::weak_triangular_matrix<A>() &&
+    linear_algebra::concept::general_matrix<B>();
+}
+
 //////////
 // trsm //
 //////////
 
-template <class A, class B>
+template<class A, class B>
 constexpr bool trsm() {
-  return linear_algebra::concept::weak_triangular_matrix<A>() &&
-         linear_algebra::concept::modifiable_general_matrix_forward<B>();
+  return left_trsm<A, B>() || right_trsm<A, B>();
 }
-
 
 //////////
 // trsv //
@@ -315,8 +334,9 @@ constexpr bool trsm() {
 
 template <class A, class X>
 constexpr bool trsv() {
-  return linear_algebra::concept::weak_triangular_matrix<A>() &&
-         linear_algebra::concept::modifiable_column_vector_forward<X>();
+  return matrix_matrix_product_shaped<A, X, X>() &&
+        linear_algebra::concept::weak_triangular_matrix<A>() &&
+         linear_algebra::concept::column_vector<X>();
 }
 
 /////////////
@@ -333,6 +353,24 @@ template <class A, class B, class C>
 constexpr bool product() {
   return gemm<A, B, C>() || gemv<A, B, C>() || symm<A, B, C>() ||
          symv<A, B, C>();
+}
+
+////////////////
+// left_solve //
+////////////////
+
+template<class A, class B>
+constexpr bool left_solve() {
+  return left_trsm<A, B>() || trsv<A, B>();
+}
+
+///////////
+// solve //
+///////////
+
+template<class A, class B>
+constexpr bool solve() {
+  return trsm<A, B>() || trsv<A, B>();
 }
 }
 }

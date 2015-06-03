@@ -11,8 +11,6 @@ namespace structure {
 using execution_context::structure::uplo_t;
 using execution_context::matrix_diagonal_fill_t;
 
-enum class matrix_diagonal_fill_t { general = -1, null = 0, unity = 1 };
-
 struct general : execution_context::structure::general {};
 
 struct matrix_general : execution_context::structure::general {};

@@ -1,10 +1,10 @@
-#include <echo/numeric_array/test.h>
 #include <echo/linear_algebra/matrix.h>
 #include <echo/linear_algebra/vector.h>
 #include <echo/linear_algebra/conversion_evaluator.h>
 #include <echo/linear_algebra/matrix_operation_expression.h>
 #include <echo/linear_algebra/transpose.h>
 #include <echo/linear_algebra/product.h>
+#include <echo/numeric_array/test.h>
 #include <echo/tbb_expression_executer.h>
 #include <echo/intel_execution_context.h>
 #include <echo/test.h>

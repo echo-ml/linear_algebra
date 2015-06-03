@@ -23,7 +23,9 @@ class MatrixOperationExpression
   static constexpr matrix_operation_t operation = Operation;
   MatrixOperationExpression(Pointer data, const Shape& shape)
       : Shape(shape), _data(data) {}
+  auto data() { return _data; }
   auto data() const { return _data; }
+  const auto* const_data() const { return _data; }
   const auto& shape() const { return static_cast<const Shape&>(*this); }
   auto evaluator() const {
     auto expression = make_expression(
