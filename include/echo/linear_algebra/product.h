@@ -88,7 +88,6 @@ auto emplace_product(const ExecutionContext& execution_context,
                      k_array_traits::value_type<A> alpha, const A& a,
                      const B& b, k_array_traits::value_type<A> beta, C&& c) {
   auto a_m = get_extent<0>(a);
-  auto a_n = get_extent<1>(a);
   auto lda = get_leading_dimension(a);
 
   auto b_m = get_extent<0>(b);
@@ -100,7 +99,7 @@ auto emplace_product(const ExecutionContext& execution_context,
   auto ldc = get_leading_dimension(c);
 
   assert(a_m == c_m);
-  assert(a_n == b_m);
+  assert(a_m == b_m);
   assert(b_n == c_n);
 
   execution_context.symm(execution_context::matrix_side_t::left,
@@ -119,7 +118,6 @@ auto emplace_product(const ExecutionContext& execution_context,
                      k_array_traits::value_type<A> alpha, const A& a,
                      const B& b, k_array_traits::value_type<A> beta, C&& c) {
   auto a_m = get_extent<0>(a);
-  auto a_n = get_extent<1>(a);
   auto lda = get_leading_dimension(a);
 
   auto b_m = get_extent<0>(b);
@@ -131,7 +129,7 @@ auto emplace_product(const ExecutionContext& execution_context,
   auto ldc = get_leading_dimension(c);
 
   assert(a_m == c_m);
-  assert(a_n == b_m);
+  assert(a_m == b_m);
   assert(b_n == c_n);
 
   execution_context.symm(execution_context::matrix_side_t::right,
@@ -139,6 +137,34 @@ auto emplace_product(const ExecutionContext& execution_context,
                          b.const_data(), ldb, a.const_data(), lda, beta,
                          c.data(), ldc);
   return make_view(c);
+}
+
+// symv
+template<class ExecutionContext, class A, class X, class Y,
+  CONCEPT_REQUIRES(
+    execution_context::concept::blas_executer<ExecutionContext>() &&
+    blas::concept::symv<A, X, uncvref_t<Y>>() &&
+    linear_algebra::concept::modifiable_matrix_forward<Y>())>
+auto emplace_product(const ExecutionContext& execution_context,
+  k_array_traits::value_type<A> alpha, const A& a,
+  const X& x, k_array_traits::value_type<A> beta, Y&& y)
+{
+  auto a_m = get_extent<0>(a);
+  auto lda = get_leading_dimension(a);
+
+  auto x_m = get_extent<0>(x);
+  auto incx = get_stride<0>(x);
+
+  auto y_m = get_extent<0>(y);
+  auto incy = get_stride<0>(y);
+
+  assert(a_m == y_m);
+  assert(a_m == x_m);
+
+  execution_context.symv(A::structure::storage_uplo, a_m, alpha,
+                         a.const_data(), lda, x.const_data(), incx, beta,
+                         y.data(), incy);
+  return make_view(y);
 }
 
 template <class ExecutionContext, class A, class B, class C,
@@ -188,7 +214,7 @@ auto product(const ExecutionContext& execution_context,
              k_array_traits::value_type<A> beta, const C& c) {
   using Scalar = k_array_traits::value_type<A>;
   using Structure = numeric_array_traits::structure<C>;
-  auto c_shape = c.shape();
+  auto c_shape = get_extent_shape(c.shape());
   auto allocator = make_aligned_allocator<Scalar>(execution_context);
   NumericArray<Scalar, decltype(c_shape), Structure, decltype(allocator)>
       result(c_shape, allocator);

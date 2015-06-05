@@ -21,19 +21,33 @@ TEST_CASE("general product") {
   Matrix<double, KShape<2, 4>> m3;
   Matrix<double, KShape<4, 2>> m4;
   Matrix<double, KShape<2, 2>> m5;
+  Matrix<double, KShape<3, 1>> v1;
   m1 = {{0, 2, 4}, {1, 3, 5}};
   m2 = {{1, 4, 7, 10}, {2, 5, 8, 11}, {3, 6, 9, 12}};
   m3 = {{2, 3, 4, 5}, {7, 8, 9, 10}};
+  v1 = {9, 5, 1};
 
   auto v2 = 
     make_numeric_array_view<linear_algebra::structure::matrix_general>(
         m2.data(),
         slice(m2.shape(), 2_index, 3_index) 
     );
-  
+  auto v3 = make_numeric_array_view<linear_algebra::structure::matrix_general>(
+      m2.data(), 
+  make_k_subshape(make_k_shape(3_index, 1_index),
+                                 k_array::KShapeStrides<2, 1>{}));
+
   SECTION("normal emplace product") {
     emplace_product(executer, m1, m2, m3);
     ARRAY_EQUAL(m3, {{16, 34, 52, 70}, {22, 49, 76, 103}});
+  }
+  SECTION("matrix-vector product") {
+    auto v = product(executer, m1, v1);
+    ARRAY_EQUAL(v, {{14}, {29}});
+  }
+  SECTION("matrix-vector product2") {
+    auto v = product(executer, m1, v3);
+    ARRAY_EQUAL(v, {{26}, {35}});
   }
   SECTION("normal product") {
     auto m = product(executer, m1, m2);
@@ -62,9 +76,19 @@ TEST_CASE("general product") {
 TEST_CASE("symmetric product") {
   SymmetricMatrix<double, KShape<3, 3>> s1;
   Matrix<double, KShape<3,3>> m1, m2;
+  Matrix<double, KShape<3, 1>> v1;
   s1 = {{1, 2, 3}, {2, 5, 8}, {3, 8, 9}};
   m1 = {{3, 1, 2}, {4, 6, 5}, {7, 8, 12}};
   m2 = {{9, 3, 1}, {9, 5, 6}, {9, 3, 10}};
+
+  v1 = {{1}, {3}, {2}};
+  auto v2 = make_numeric_array_view<linear_algebra::structure::matrix_general>(
+    m1.data(),
+    k_array::make_k_subshape(
+      make_k_shape(3_index, 1_index),
+      k_array::KShapeStrides<3, 1>()
+    )
+  );
 
   SECTION("left_product") {
     auto m = product(executer, s1, m1);
@@ -77,5 +101,13 @@ TEST_CASE("symmetric product") {
   SECTION("emplace_product") {
     emplace_product(executer, m1, s1, m2);
     ARRAY_EQUAL(m2, {{11, 27, 35}, {31, 78, 105}, {59, 150, 193}});
+  }
+  SECTION("symv_product") {
+    auto v = product(executer, s1, v1);
+    ARRAY_EQUAL(v, {{13}, {33}, {45}});
+  }
+  SECTION("symv_product2") {
+    auto v = product(executer, s1, v2);
+    ARRAY_EQUAL(v, {{11}, {27}, {35}});
   }
 }

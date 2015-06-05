@@ -138,7 +138,7 @@ namespace concept {
 struct RowVector : Concept {
   template <class T>
   auto require() -> list<
-      matrix<T>(), same<k_array_traits::extent_type<1, T>, StaticIndex<1>>()>;
+      matrix<T>(), same<k_array_traits::extent_type<0, T>, StaticIndex<1>>()>;
 };
 }
 }
@@ -176,8 +176,10 @@ namespace detail {
 namespace concept {
 struct ColumnVector : Concept {
   template <class T>
-  auto require() -> list<
-      matrix<T>(), same<k_array_traits::extent_type<0, T>, StaticIndex<1>>()>;
+  auto require(T&&) -> list<
+      matrix<T>(), 
+      same<k_array_traits::extent_type<1, T>, StaticIndex<1>>()
+      >;
 };
 }
 }
