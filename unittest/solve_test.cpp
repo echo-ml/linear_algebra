@@ -18,6 +18,9 @@ TEST_CASE("solve") {
   LowerTriangularMatrix<double, KShape<3, 3>> t1;
   t1 = {{9, 0, 0}, {1, 2, 0}, {3, 8, 1}};
 
+  Matrix<double, KShape<3, 1>> v1;
+  v1 = {{2}, {7}, {4}};
+
   SECTION("emplace_left_solve") {
     emplace_left_solve(executer, t1, m1);
     ARRAY_EQUAL(
@@ -30,6 +33,11 @@ TEST_CASE("solve") {
     ARRAY_EQUAL(
         m, {{0.111111, 0.222222}, {1.44444, 1.88889}, {-6.88889, -9.77778}},
         .01);
+  }
+
+  SECTION("vector solve") {
+    auto v = left_solve(executer, t1, v1);
+    ARRAY_EQUAL(v, {{0.222222}, {3.38889}, {-23.7778}}, .01);
   }
 
   SECTION("transpose emplace_left_solve") {

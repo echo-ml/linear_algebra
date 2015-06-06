@@ -46,12 +46,12 @@ template <class ExecutionContext, class A, class X,
               execution_context::concept::blas_executer<ExecutionContext>() &&
               blas::concept::trsv<A, uncvref_t<X>>())>
 auto emplace_left_solve(const ExecutionContext& execution_context, const A& a,
-                        k_array_traits::value_type<A> alpha, X&& x) {
+                        X&& x) {
   auto a_m = get_extent<0>(a);
   auto lda = get_leading_dimension(a);
 
   auto x_m = get_extent<0>(x);
-  auto incx = get_leading_dimension(x);
+  auto incx = get_stride<0>(x);
 
   assert(a_m == x_m);
 
@@ -60,7 +60,7 @@ auto emplace_left_solve(const ExecutionContext& execution_context, const A& a,
       matrix_traits::get_underlying_triangular_matrix_uplo<A>();
 
   execution_context.trsv(a_uplo, operation_a,
-                         structure::matrix_diagonal_fill_t::general, a_m, alpha,
+                         structure::matrix_diagonal_fill_t::general, a_m,
                          a.const_data(), lda, x.data(), incx);
 
   return make_view(x);
@@ -70,7 +70,7 @@ auto emplace_left_solve(const ExecutionContext& execution_context, const A& a,
 template <class ExecutionContext, class A, class B,
           CONCEPT_REQUIRES(
               execution_context::concept::blas_executer<ExecutionContext>() &&
-              blas::concept::solve<A, uncvref_t<B>>() &&
+              blas::concept::left_trsm<A, uncvref_t<B>>() &&
               linear_algebra::concept::modifiable_matrix_forward<B>())>
 auto emplace_left_solve(const ExecutionContext& execution_context, const A& a,
                         B&& b) {
@@ -86,7 +86,7 @@ template <
     CONCEPT_REQUIRES(
         execution_context::concept::blas_executer<ExecutionContext>() &&
         execution_context::concept::allocation_backend<ExecutionContext>() &&
-        blas::concept::left_solve<A, B>())>
+        blas::concept::left_trsm<A, B>())>
 auto left_solve(const ExecutionContext& execution_context, const A& a,
                 k_array_traits::value_type<A> alpha, const B& b) {
   using Scalar = k_array_traits::value_type<B>;
@@ -106,7 +106,27 @@ template <
     CONCEPT_REQUIRES(
         execution_context::concept::blas_executer<ExecutionContext>() &&
         execution_context::concept::allocation_backend<ExecutionContext>() &&
-        blas::concept::left_solve<A, B>())>
+        blas::concept::trsv<A, B>())>
+auto left_solve(const ExecutionContext& execution_context, const A& a,
+                const B& b) {
+  using Scalar = k_array_traits::value_type<B>;
+  using Structure = numeric_array_traits::structure<B>;
+
+  auto b_shape = b.shape();
+  auto allocator = make_aligned_allocator<Scalar>(execution_context);
+  NumericArray<Scalar, decltype(b_shape), Structure, decltype(allocator)>
+      result(b_shape, allocator);
+  copy(execution_context, b, result);
+  emplace_left_solve(execution_context, a, result);
+  return result;
+}
+
+template <
+    class ExecutionContext, class A, class B,
+    CONCEPT_REQUIRES(
+        execution_context::concept::blas_executer<ExecutionContext>() &&
+        execution_context::concept::allocation_backend<ExecutionContext>() &&
+        blas::concept::left_trsm<A, B>())>
 auto left_solve(const ExecutionContext& execution_context, const A& a,
                 const B& b) {
   return left_solve(execution_context, a, 1, b);
