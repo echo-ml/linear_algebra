@@ -35,6 +35,62 @@ auto vector_type() -> NumericArray<Scalar, KShapeFromExtents<Extent>, Structure,
 }
 }
 
+/////////////////////
+// row_vector_type //
+/////////////////////
+
+namespace detail {
+namespace vector {
+
+template <class Scalar, class Shape,
+          class MemoryBackend = SimdAllocator<Scalar>,
+          CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
+                           k_array::concept::contiguous_k_shape<2, Shape>() &&
+                           std::is_same<shape_traits::extent_type<0, Shape>,
+                                        StaticIndex<1>>::value &&
+                           memory::concept::memory_backend<MemoryBackend>())>
+auto row_vector_type()
+    -> NumericArray<Scalar, Shape, structure::matrix_general, MemoryBackend>;
+
+template <class Scalar, class Extent,
+          class MemoryBackend = SimdAllocator<Scalar>,
+          CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
+                           k_array::concept::extent<Extent>() &&
+                           memory::concept::memory_backend<MemoryBackend>())>
+auto row_vector_type()
+    -> NumericArray<Scalar, KShapeFromExtents<StaticIndex<1>, Extent>,
+                    structure::matrix_general, MemoryBackend>;
+}
+}
+
+////////////////////////
+// column_vector_type //
+////////////////////////
+
+namespace detail {
+namespace vector {
+
+template <class Scalar, class Shape,
+          class MemoryBackend = SimdAllocator<Scalar>,
+          CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
+                           k_array::concept::contiguous_k_shape<2, Shape>() &&
+                           std::is_same<shape_traits::extent_type<1, Shape>,
+                                        StaticIndex<1>>::value &&
+                           memory::concept::memory_backend<MemoryBackend>())>
+auto column_vector_type()
+    -> NumericArray<Scalar, Shape, structure::matrix_general, MemoryBackend>;
+
+template <class Scalar, class Extent,
+          class MemoryBackend = SimdAllocator<Scalar>,
+          CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
+                           k_array::concept::extent<Extent>() &&
+                           memory::concept::memory_backend<MemoryBackend>())>
+auto column_vector_type()
+    -> NumericArray<Scalar, KShapeFromExtents<Extent, StaticIndex<1>>,
+                    structure::matrix_general, MemoryBackend>;
+}
+}
+
 ////////////
 // Vector //
 ////////////
@@ -42,6 +98,22 @@ auto vector_type() -> NumericArray<Scalar, KShapeFromExtents<Extent>, Structure,
 template <class Scalar, class... Specifiers>
 using Vector = decltype(
     detail::vector::vector_type<Scalar, structure::general, Specifiers...>());
+
+///////////////
+// RowVector //
+///////////////
+
+template <class Scalar, class... Specifiers>
+using RowVector =
+    decltype(detail::vector::row_vector_type<Scalar, Specifiers...>());
+
+//////////////////
+// ColumnVector //
+//////////////////
+
+template <class Scalar, class... Specifiers>
+using ColumnVector =
+    decltype(detail::vector::column_vector_type<Scalar, Specifiers...>());
 
 ////////////////////
 // DiagonalMatrix //

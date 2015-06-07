@@ -207,9 +207,27 @@ struct merge<linear_algebra::structure::matrix_general, T> {
   using type = linear_algebra::structure::matrix_general;
 };
 
+template <>
+struct merge<linear_algebra::structure::matrix_general,
+             execution_context::structure::general> {
+  using type = execution_context::structure::general;
+};
+
 template <class T>
 struct merge<linear_algebra::structure::diagonal, T> {
   using type = T;
+};
+
+template <>
+struct merge<linear_algebra::structure::lower_symmetric,
+             linear_algebra::structure::upper_symmetric> {
+  using type = linear_algebra::structure::lower_symmetric;
+};
+
+template <>
+struct merge<linear_algebra::structure::lower_triangular,
+             linear_algebra::structure::upper_triangular> {
+  using type = linear_algebra::structure::matrix_general;
 };
 }
 }

@@ -13,52 +13,6 @@ namespace numeric_array {
 
 template <class Derived, class BaseArray, class Shape>
 struct NumericArrayConstAccessor<Derived, BaseArray, Shape,
-                                 linear_algebra::structure::matrix_general>
-    : NumericArrayConstAccessor<Derived, BaseArray, Shape,
-                                execution_context::structure::general> {
-  using NumericArrayConstAccessor<Derived, BaseArray, Shape,
-                                  execution_context::structure::general>::
-  operator();
-
-  CONCEPT_MEMBER_REQUIRES(shape_traits::fixed_dimension<1, Shape>())
-  decltype(auto) operator()(access_mode::readonly_t, index_t i) const {
-    return this->operator()(access_mode::readonly, i, 0);
-  }
-
-  CONCEPT_MEMBER_REQUIRES(shape_traits::fixed_dimension<0, Shape>())
-  decltype(auto) operator()(access_mode::readonly_t, index_t j) const {
-    return this->operator()(access_mode::readonly, 0, j);
-  }
-
-  CONCEPT_MEMBER_REQUIRES(shape_traits::fixed_dimension<1, Shape>())
-  decltype(auto) operator()(access_mode::readwrite_t, index_t i) const {
-    return this->operator()(access_mode::readwrite, i, 0);
-  }
-
-  CONCEPT_MEMBER_REQUIRES(shape_traits::fixed_dimension<0, Shape>())
-  decltype(auto) operator()(access_mode::readwrite_t, index_t j) const {
-    return this->operator()(access_mode::readwrite, 0, j);
-  }
-
-  CONCEPT_MEMBER_REQUIRES(shape_traits::fixed_dimension<1, Shape>())
-  decltype(auto) operator()(access_mode::raw_t, index_t i) const {
-    return this->operator()(access_mode::raw, i, 0);
-  }
-
-  CONCEPT_MEMBER_REQUIRES(shape_traits::fixed_dimension<0, Shape>())
-  decltype(auto) operator()(access_mode::raw_t, index_t j) const {
-    return this->operator()(access_mode::raw, 0, j);
-  }
-
-  CONCEPT_MEMBER_REQUIRES(shape_traits::fixed_dimension<1, Shape>())
-  decltype(auto) operator()(index_t i) const { return this->operator()(i, 0); }
-
-  CONCEPT_MEMBER_REQUIRES(shape_traits::fixed_dimension<0, Shape>())
-  decltype(auto) operator()(index_t j) const { return this->operator()(0, j); }
-};
-
-template <class Derived, class BaseArray, class Shape>
-struct NumericArrayConstAccessor<Derived, BaseArray, Shape,
                                  linear_algebra::structure::lower_symmetric> {
   decltype(auto) operator()(access_mode::readonly_t, index_t i_prime,
                             index_t j_prime) const {

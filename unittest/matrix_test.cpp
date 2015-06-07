@@ -25,6 +25,25 @@ TEST_CASE("matrix") {
   s1(1, 0) = 12;
 }
 
+TEST_CASE("vector") {
+  SECTION("row_vector") {
+    RowVector<double, StaticIndex<3>> v1;
+    type_equal<decltype(v1),
+               NumericArray<double, KShape<1, 3>,
+                            linear_algebra::structure::matrix_general>>();
+    RowVector<double, KShape<1, 3>> v2;
+    type_equal<decltype(v2), decltype(v1)>();
+  }
+  SECTION("column_vector") {
+    ColumnVector<double, StaticIndex<3>> v1;
+    type_equal<decltype(v1),
+               NumericArray<double, KShape<3, 1>,
+                            linear_algebra::structure::matrix_general>>();
+    ColumnVector<double, KShape<3, 1>> v2;
+    type_equal<decltype(v2), decltype(v1)>();
+  }
+}
+
 TEST_CASE("expression") {
   Matrix<double, KShape<2, 3>> m1, m2, m3;
   std::iota(all_begin(m1), all_end(m1), 0);
@@ -74,21 +93,23 @@ TEST_CASE("symmetric_initialization") {
 }
 
 TEST_CASE("triangular_initialization") {
-  LowerTriangularMatrix<double, KShape<2,2>> lt;
-  UpperTriangularMatrix<double, KShape<2,2>> ut;
+  LowerTriangularMatrix<double, KShape<2, 2>> lt;
+  UpperTriangularMatrix<double, KShape<2, 2>> ut;
 
   SECTION("lower_triangular valid initialization") {
     lt = {{1, 0}, {3, 4}};
-    ARRAY_EQUAL(lt, {{1, 0}, {3,4}});
+    ARRAY_EQUAL(lt, {{1, 0}, {3, 4}});
   }
   SECTION("lower_triangular invalid initialization") {
-    CHECK_THROWS_AS((lt = {{1,7}, {3,4}}), numeric_array::InitializationError);
+    CHECK_THROWS_AS((lt = {{1, 7}, {3, 4}}),
+                    numeric_array::InitializationError);
   }
   SECTION("upper_triangular valid initialization") {
     ut = {{1, 7}, {0, 4}};
-    ARRAY_EQUAL(ut, {{1, 7}, {0,4}});
+    ARRAY_EQUAL(ut, {{1, 7}, {0, 4}});
   }
   SECTION("upper_triangular invalid initialization") {
-    CHECK_THROWS_AS((ut = {{1,7}, {3,4}}), numeric_array::InitializationError);
+    CHECK_THROWS_AS((ut = {{1, 7}, {3, 4}}),
+                    numeric_array::InitializationError);
   }
 }
