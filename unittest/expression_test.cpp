@@ -33,3 +33,31 @@ TEST_CASE("general structures") {
   executer(m2 = expr);
   ARRAY_EQUAL(m2, {{2, 4, 6}, {6, 9, 12}});
 }
+
+TEST_CASE("non-general expression") {
+  SymmetricMatrix<double, KShape<2,2>> s1, s2;
+  s1 = {{3, 7}, {7, 9}};
+  executer(s2 = s1+5);
+  ARRAY_EQUAL(s2, {{8, 12}, {12, 14}});
+}
+
+TEST_CASE("conversions") {
+  SymmetricMatrix<double, KShape<2,2>> s1;
+  LowerTriangularMatrix<double, KShape<2,2>> lt1;
+  UpperTriangularMatrix<double, KShape<2,2>> ut1;
+  Matrix<double, KShape<2,2>> m1, m2;
+
+  s1 = {{3, 7}, {7, 9}};
+  lt1 = {{9, 0}, {4, 8}};
+  ut1 = {{5, 2}, {0, 7}};
+  m1 = {{4, 5},{8, 9}};
+
+  SECTION("symmetric -> general") {
+    executer(m2 = m1 + s1);
+    ARRAY_EQUAL(m2, {{7, 12}, {15, 18}});
+  }
+  SECTION("triangular -> general") {
+    executer(m2 = lt1 + ut1);
+    ARRAY_EQUAL(m2, {{14, 2}, {4, 15}});
+  }
+}

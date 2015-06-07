@@ -6,20 +6,29 @@
 
 namespace echo {
 namespace linear_algebra {
+
+struct linear_algebra_structure_adl_tag {};
+
 namespace structure {
 
 using execution_context::structure::uplo_t;
 using execution_context::matrix_diagonal_fill_t;
 
-struct general : execution_context::structure::general {};
+struct general : execution_context::structure::general,
+                 linear_algebra_structure_adl_tag {};
 
-struct matrix_general : execution_context::structure::general {};
+struct matrix_general : execution_context::structure::general,
+                        linear_algebra_structure_adl_tag {};
 
-struct vector_general : execution_context::structure::general {};
+struct vector_general : execution_context::structure::general,
+                        linear_algebra_structure_adl_tag {};
 
-struct symmetric_base : numeric_array::structure::equal_dimensional {};
-struct hermitian_base : numeric_array::structure::equal_dimensional {};
-struct triangular_base : numeric_array::structure::equal_dimensional {};
+struct symmetric_base : numeric_array::structure::equal_dimensional,
+                        linear_algebra_structure_adl_tag {};
+struct hermitian_base : numeric_array::structure::equal_dimensional,
+                        linear_algebra_structure_adl_tag {};
+struct triangular_base : numeric_array::structure::equal_dimensional,
+                         linear_algebra_structure_adl_tag {};
 
 template <uplo_t Uplo>
 struct symmetric_uplo : symmetric_base {
@@ -47,7 +56,8 @@ using hermitian = hermitian_uplo<uplo_t::lower>;
 using lower_triangular = triangular<uplo_t::lower>;
 using upper_triangular = triangular<uplo_t::upper>;
 
-struct diagonal : execution_context::structure::base {};
+struct diagonal : execution_context::structure::base,
+                  linear_algebra_structure_adl_tag {};
 
 namespace concept {
 
