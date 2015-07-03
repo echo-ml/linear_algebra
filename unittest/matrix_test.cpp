@@ -15,16 +15,16 @@ using namespace echo::linear_algebra;
 // const execution_context::intel_tbb::ExpressionExecuter executer{};
 const execution_context::intel::ExecutionContext executer{};
 
-// TEST_CASE("matrix") {
-//   Matrix<double, StaticIndex<3>, StaticIndex<2>> m1;
-//   m1(0, 0) = 7;
-//   Matrix<double, KShape<3, 2>> m2;
-//   m2(0, 0) = 7;
-//
-//   SymmetricMatrix<float, StaticIndex<5>> s1;
-//   s1(1, 0) = 12;
-// }
-//
+TEST_CASE("matrix") {
+  Matrix<double, StaticIndex<3>, StaticIndex<2>> m1;
+  m1(0, 0) = 7;
+  Matrix<double, ShapeC<3, 2>> m2;
+  m2(0, 0) = 7;
+
+  SymmetricMatrix<float, StaticIndex<5>> s1;
+  s1(1, 0) = 12;
+}
+
 // TEST_CASE("vector") {
 //   SECTION("row_vector") {
 //     RowVector<double, StaticIndex<3>> v1;

@@ -1,73 +1,70 @@
 #pragma once
 
+#define DETAIL_NS detail_concept
+
 #include <echo/linear_algebra/structure.h>
 #include <echo/linear_algebra/matrix_traits.h>
 #include <echo/numeric_array.h>
 
-// namespace echo {
-// namespace linear_algebra {
-// namespace concept {
-//
-// /////////////////////////
-// // square_matrix_shape //
-// /////////////////////////
-//
-// namespace detail {
-// namespace concept {
-// struct SquareMatrixShape : Concept {
-//   template <class T>
-//   auto require(T&& shape) -> list<
-//       k_array::concept::k_shape<2, T>(),
-//       same<decltype(get_extent<0>(shape)), decltype(get_extent<1>(shape))>()>;
-// };
-// }
-// }
-//
-// template <class T>
-// constexpr bool square_matrix_shape() {
-//   return models<detail::concept::SquareMatrixShape, T>();
-// }
-//
-// ////////////
-// // matrix //
-// ////////////
-//
-// namespace detail {
-// namespace concept {
-// struct Matrix : Concept {
-//   template <class T>
-//   auto require(T&& x) -> list<k_array::concept::k_array<2, T>(),
-//                               numeric_array::concept::numeric_array<T>(),
-//                               matrix_traits::operation<T>() ==
-//                                   execution_context::matrix_operation_t::none>;
-// };
-// }
-// }
-//
-// template <class T>
-// constexpr bool matrix() {
-//   return models<detail::concept::Matrix, T>();
-// }
-//
-// ///////////////////////////////
-// // modifiable_matrix_forward //
-// ///////////////////////////////
-//
-// namespace detail { namespace concept {
-// struct ModifiableMatrixForward : Concept {
-//   template<class T>
-//   auto require(T&& x) -> list<
-//     matrix<uncvref_t<T>>(),
-//     echo::concept::writable<decltype(x.data())>()
-//   >;
-// };
-// }}
-//
-// template<class T>
-// constexpr bool modifiable_matrix_forward() {
-//   return models<detail::concept::ModifiableMatrixForward, T>();
-// }
-//
+namespace echo {
+namespace linear_algebra {
+namespace concept {
+
+//------------------------------------------------------------------------------
+// square_compatible_shape
+//------------------------------------------------------------------------------
+namespace DETAIL_NS {
+struct SquareCompatibleShape : Concept {
+  template <class T>
+  auto require(T&& shape) -> list<
+      k_array::concept::shape<2, T>(),
+      same<shape_traits::extent_type<0, T>, shape_traits::extent_type<1, T>>()>;
+};
+}
+
+template <class T>
+constexpr bool square_compatible_shape() {
+  return models<DETAIL_NS::SquareCompatibleShape, T>();
+}
+
+//------------------------------------------------------------------------------
+// matrix
+//------------------------------------------------------------------------------
+namespace DETAIL_NS {
+struct Matrix : Concept {
+  template <class T>
+  auto require(T&& x)
+      -> list<k_array::concept::shape<2, uncvref_t<decltype(x.shape())>>(),
+              numeric_array::concept::numeric_array<T>(),
+              matrix_traits::operation<T>() ==
+                  execution_context::matrix_operation_t::none>;
+};
+}
+
+template <class T>
+constexpr bool matrix() {
+  return models<DETAIL_NS::Matrix, T>();
+}
+
+///////////////////////////////
+// modifiable_matrix_forward //
+///////////////////////////////
+
+namespace DETAIL_NS {
+struct ModifiableMatrixForward : Concept {
+  template<class T>
+  auto require(T&& x) -> list<
+    matrix<uncvref_t<T>>(),
+    echo::concept::writable<decltype(x.data())>()
+  >;
+};
+}
+
+template<class T>
+constexpr bool modifiable_matrix_forward() {
+  return models<DETAIL_NS::ModifiableMatrixForward, T>();
+}
+
 // /////////////////////
 // // operated_matrix //
 // /////////////////////
@@ -468,6 +465,8 @@
 // constexpr bool matrix_expression() {
 //   return numeric_array::concept::shaped_expression<2, T>();
 // }
-// }
-// }
-// }
+}
+}
+}
+
+#undef DETAIL_NS
