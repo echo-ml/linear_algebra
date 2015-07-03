@@ -2,7 +2,7 @@
 
 #include <echo/execution_context.h>
 #include <echo/numeric_array.h>
-#include <echo/concept2.h>
+#include <echo/concept.h>
 
 namespace echo {
 namespace linear_algebra {
