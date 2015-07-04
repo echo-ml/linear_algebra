@@ -5,6 +5,9 @@
 namespace echo {
 namespace linear_algebra {
 
+//------------------------------------------------------------------------------
+// DiagonalMatrixEvaluator
+//------------------------------------------------------------------------------
 template <class Evaluator>
 class DiagonalMatrixEvaluator {
  public:
@@ -17,6 +20,9 @@ class DiagonalMatrixEvaluator {
   Evaluator _evaluator;
 };
 
+//------------------------------------------------------------------------------
+// make_diagonal_matrix_evaluator
+//------------------------------------------------------------------------------
 template <
     class Evaluator,
     CONCEPT_REQUIRES(execution_context::concept::flat_evaluator<Evaluator>())>

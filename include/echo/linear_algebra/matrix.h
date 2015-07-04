@@ -1,5 +1,7 @@
 #pragma once
 
+#define DETAIL_NS detail_matrix
+
 #include <echo/linear_algebra/concept.h>
 #include <echo/linear_algebra/structure.h>
 #include <echo/linear_algebra/matrix_accessor.h>
@@ -10,13 +12,10 @@
 namespace echo {
 namespace linear_algebra {
 
-/////////////////
-// matrix_type //
-/////////////////
-
-namespace detail {
-namespace matrix {
-
+//------------------------------------------------------------------------------
+// matrix_type
+//------------------------------------------------------------------------------
+namespace DETAIL_NS {
 template <class Scalar, class Structure, class Shape = Shape<index_t, index_t>,
           class MemoryBackend = memory::SimdAllocator<Scalar>,
           CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
@@ -66,49 +65,44 @@ template <class Scalar, class Structure, class Extent,
 auto matrix_type()
     -> NumericArray<Scalar, Shape<Extent, Extent>, Structure, MemoryBackend>;
 }
-}
 
-////////////
-// Matrix //
-////////////
-
+//------------------------------------------------------------------------------
+// Matrix
+//------------------------------------------------------------------------------
 template <class Scalar, class... Specifiers>
-using Matrix =
-    decltype(detail::matrix::matrix_type<Scalar, structure::matrix_general,
-                                         Specifiers...>());
+using Matrix = decltype(
+    DETAIL_NS::matrix_type<Scalar, structure::matrix_general, Specifiers...>());
 
-/////////////////////
-// SymmetricMatrix //
-/////////////////////
-
+//------------------------------------------------------------------------------
+// SymmetricMatrix
+//------------------------------------------------------------------------------
 template <class Scalar, class... Specifiers>
 using SymmetricMatrix = decltype(
-    detail::matrix::matrix_type<Scalar, structure::symmetric, Specifiers...>());
+    DETAIL_NS::matrix_type<Scalar, structure::symmetric, Specifiers...>());
 
-/////////////////////
-// HermitianMatrix //
-/////////////////////
-
+//------------------------------------------------------------------------------
+// HermitianMatrix
+//------------------------------------------------------------------------------
 template <class Scalar, class... Specifiers>
 using HermitianMatrix = decltype(
-    detail::matrix::matrix_type<Scalar, structure::hermitian, Specifiers...>());
+    DETAIL_NS::matrix_type<Scalar, structure::hermitian, Specifiers...>());
 
-///////////////////////////
-// LowerTriangularMatrix //
-///////////////////////////
-
+//------------------------------------------------------------------------------
+// LowerTriangularMatrix
+//------------------------------------------------------------------------------
 template <class Scalar, class... Specifiers>
 using LowerTriangularMatrix =
-    decltype(detail::matrix::matrix_type<Scalar, structure::lower_triangular,
-                                         Specifiers...>());
+    decltype(DETAIL_NS::matrix_type<Scalar, structure::lower_triangular,
+                                    Specifiers...>());
 
-///////////////////////////
-// UpperTriangularMatrix //
-///////////////////////////
-
+//------------------------------------------------------------------------------
+// UpperTriangularMatrix
+//------------------------------------------------------------------------------
 template <class Scalar, class... Specifiers>
 using UpperTriangularMatrix =
-    decltype(detail::matrix::matrix_type<Scalar, structure::upper_triangular,
-                                         Specifiers...>());
+    decltype(DETAIL_NS::matrix_type<Scalar, structure::upper_triangular,
+                                    Specifiers...>());
 }
 }
+
+#undef DETAIL_NS

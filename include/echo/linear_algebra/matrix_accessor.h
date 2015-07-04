@@ -7,10 +7,9 @@
 namespace echo {
 namespace numeric_array {
 
-///////////////////////////////
-// NumericArrayConstAccessor //
-///////////////////////////////
-
+//------------------------------------------------------------------------------
+// NumericArrayConstAccessor
+//------------------------------------------------------------------------------
 template <class Derived, class Shape>
 struct NumericArrayConstAccessor<Derived, Shape,
                                  linear_algebra::structure::lower_symmetric> {

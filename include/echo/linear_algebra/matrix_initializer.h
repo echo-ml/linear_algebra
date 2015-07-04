@@ -6,10 +6,9 @@
 namespace echo {
 namespace numeric_array {
 
-/////////////////////////////
-// NumericArrayInitializer //
-/////////////////////////////
-
+//------------------------------------------------------------------------------
+// NumericArrayInitializer
+//------------------------------------------------------------------------------
 // symmetric
 template <class Derived, class Scalar, class Extent,
           linear_algebra::structure::uplo_t Uplo>
