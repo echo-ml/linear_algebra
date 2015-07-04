@@ -18,21 +18,21 @@ struct NumericArrayConstAccessor<Derived, Shape,
     const Derived& derived = static_cast<const Derived&>(*this);
     index_t i, j;
     std::tie(i, j) = std::minmax(i_prime, j_prime);
-    return derived.k_array(j, i);
+    return derived.k_array()(j, i);
   }
   decltype(auto) operator()(access_mode::readwrite_t, index_t i_prime,
                             index_t j_prime) const {
     const Derived& derived = static_cast<const Derived&>(*this);
     index_t i, j;
     std::tie(i, j) = std::minmax(i_prime, j_prime);
-    return derived.k_array(j, i);
+    return derived.k_array()(j, i);
   }
   decltype(auto) operator()(access_mode::raw_t, index_t i_prime,
                             index_t j_prime) const {
     Derived& derived = static_cast<Derived&>(*this);
     index_t i, j;
     std::tie(i, j) = std::minmax(i_prime, j_prime);
-    return derived.k_array(j, i);
+    return derived.k_array()(j, i);
   }
   decltype(auto) operator()(index_t i, index_t j) const {
     return this->operator()(access_mode::readwrite, i, j);

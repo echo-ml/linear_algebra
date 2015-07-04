@@ -24,31 +24,30 @@ auto transpose_shape(const Shape& shape) {
 //------------------------------------------------------------------------------
 // transpose
 //------------------------------------------------------------------------------
+template <class Matrix,
+          CONCEPT_REQUIRES(concept::matrix<uncvref_t<Matrix>>() &&
+                           !concept::symmetric_matrix<uncvref_t<Matrix>>())>
+auto transpose(Matrix&& matrix) {
+  return make_matrix_operation_expression<
+      numeric_array_traits::structure<Matrix>, matrix_operation_t::transpose>(
+      matrix.data(), DETAIL_NS::transpose_shape(matrix.shape()));
+}
 
-// template <class Matrix,
-//           CONCEPT_REQUIRES(concept::matrix<uncvref_t<Matrix>>() &&
-//                            !concept::symmetric_matrix<uncvref_t<Matrix>>())>
-// auto transpose(Matrix&& matrix) {
-//   return make_matrix_operation_expression<
-//       numeric_array_traits::structure<Matrix>, matrix_operation_t::transpose>(
-//       matrix.data(), DETAIL_NS::transpose_shape(matrix.shape()));
-// }
-//
-// template <class Matrix,
-//           CONCEPT_REQUIRES(concept::symmetric_matrix<uncvref_t<Matrix>>())>
-// auto transpose(Matrix&& matrix) -> decltype(std::forward<Matrix>(matrix)) {
-//   return std::forward<Matrix>(matrix);
-// }
+template <class Matrix,
+          CONCEPT_REQUIRES(concept::symmetric_matrix<uncvref_t<Matrix>>())>
+auto transpose(Matrix&& matrix) -> decltype(std::forward<Matrix>(matrix)) {
+  return std::forward<Matrix>(matrix);
+}
 
-// template <class Expression,
-//           CONCEPT_REQUIRES(concept::matrix_expression<Expression>())>
-// auto transpose(const Expression& expression) {
-//   return numeric_array::make_numeric_array_expression<
-//       structure::transpose<expression_traits::structure<Expression>>>(
-//       expression.dimensionality(),
-//       make_operation_evaluator<matrix_operation_t::transpose>(
-//           expression.evaluator()));
-// }
+template <class Expression,
+          CONCEPT_REQUIRES(concept::matrix_expression<Expression>())>
+auto transpose(const Expression& expression) {
+  return numeric_array::make_numeric_array_expression<
+      structure::transpose<expression_traits::structure<Expression>>>(
+      expression.dimensionality(),
+      make_operation_evaluator<matrix_operation_t::transpose>(
+          expression.evaluator()));
+}
 }
 }
 

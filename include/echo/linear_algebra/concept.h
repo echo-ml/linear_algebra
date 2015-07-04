@@ -47,10 +47,9 @@ constexpr bool matrix() {
   return models<DETAIL_NS::Matrix, T>();
 }
 
-///////////////////////////////
-// modifiable_matrix_forward //
-///////////////////////////////
-
+//------------------------------------------------------------------------------
+// modifiable_matrix_forward
+//------------------------------------------------------------------------------
 namespace DETAIL_NS {
 struct ModifiableMatrixForward : Concept {
   template <class T>
