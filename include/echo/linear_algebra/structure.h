@@ -1,5 +1,7 @@
 #pragma once
 
+#define DETAIL_NS detail_structure
+
 #include <echo/execution_context.h>
 #include <echo/numeric_array.h>
 #include <echo/concept.h>
@@ -14,34 +16,39 @@ namespace structure {
 using execution_context::structure::uplo_t;
 using execution_context::matrix_diagonal_fill_t;
 
-struct general : execution_context::structure::general,
-                 linear_algebra_structure_adl_tag {};
+struct general : virtual execution_context::structure::general,
+                 virtual linear_algebra_structure_adl_tag {};
 
-struct matrix_general : execution_context::structure::general,
-                        linear_algebra_structure_adl_tag {};
+struct matrix_general : virtual execution_context::structure::general,
+                        virtual linear_algebra_structure_adl_tag {};
 
-struct vector_general : execution_context::structure::general,
-                        linear_algebra_structure_adl_tag {};
+struct vector_general : virtual execution_context::structure::general,
+                        virtual linear_algebra_structure_adl_tag {};
 
-struct symmetric_base : numeric_array::structure::equal_dimensional,
-                        linear_algebra_structure_adl_tag {};
-struct hermitian_base : numeric_array::structure::equal_dimensional,
-                        linear_algebra_structure_adl_tag {};
-struct triangular_base : numeric_array::structure::equal_dimensional,
-                         linear_algebra_structure_adl_tag {};
+struct symmetric_base : virtual numeric_array::structure::equal_dimensional,
+                        virtual linear_algebra_structure_adl_tag {};
+struct hermitian_base : virtual numeric_array::structure::equal_dimensional,
+                        virtual linear_algebra_structure_adl_tag {};
+struct triangular_base : virtual numeric_array::structure::equal_dimensional,
+                         virtual linear_algebra_structure_adl_tag {};
 
 template <uplo_t Uplo>
-struct symmetric_uplo : symmetric_base {
+struct symmetric_uplo
+    : virtual symmetric_base,
+      virtual execution_context::structure::half<Uplo, false> {
   static const uplo_t storage_uplo = Uplo;
 };
 
-template <uplo_t StorageUplo>
-struct hermitian_uplo : hermitian_base {
-  static const uplo_t storage_uplo = StorageUplo;
+template <uplo_t Uplo>
+struct hermitian_uplo
+    : virtual hermitian_base,
+      virtual execution_context::structure::half<Uplo, false> {
+  static const uplo_t storage_uplo = Uplo;
 };
 
 template <uplo_t Uplo>
-struct triangular : triangular_base {
+struct triangular : virtual triangular_base,
+                    virtual execution_context::structure::half<Uplo, false> {
   static const uplo_t uplo = Uplo;
 };
 
@@ -56,95 +63,80 @@ using hermitian = hermitian_uplo<uplo_t::lower>;
 using lower_triangular = triangular<uplo_t::lower>;
 using upper_triangular = triangular<uplo_t::upper>;
 
-struct diagonal : execution_context::structure::base,
-                  linear_algebra_structure_adl_tag {};
+struct diagonal : virtual execution_context::structure::base,
+                  virtual linear_algebra_structure_adl_tag {};
 
 namespace concept {
 
-///////////////
-// symmetric //
-///////////////
-
-namespace detail {
-namespace structure {
+//------------------------------------------------------------------------------
+// symmetric
+//------------------------------------------------------------------------------
+namespace DETAIL_NS {
 template <uplo_t Uplo>
 auto symmetric_impl(symmetric_uplo<Uplo>) -> std::true_type;
 
 auto symmetric_impl(...) -> std::false_type;
 }
-}
 
 template <class T>
 constexpr bool symmetric() {
-  using Result = decltype(detail::structure::symmetric_impl(std::declval<T>()));
+  using Result = decltype(DETAIL_NS::symmetric_impl(std::declval<T>()));
   return Result::value;
 }
 
-///////////////
-// hermitian //
-///////////////
-
-namespace detail {
-namespace structure {
+//------------------------------------------------------------------------------
+// hermitian
+//------------------------------------------------------------------------------
+namespace DETAIL_NS {
 template <uplo_t Uplo>
 auto hermitian_impl(hermitian_uplo<Uplo>) -> std::true_type;
 
 auto hermitian_impl(...) -> std::false_type;
 }
-}
 
 template <class T>
 constexpr bool hermitian() {
-  using Result = decltype(detail::structure::hermitian_impl(std::declval<T>()));
+  using Result = decltype(DETAIL_NS::hermitian_impl(std::declval<T>()));
   return Result::value;
 }
 
-////////////////
-// triangular //
-////////////////
-
-namespace detail {
-namespace structure {
+//------------------------------------------------------------------------------
+// triangular
+//------------------------------------------------------------------------------
+namespace DETAIL_NS {
 template <uplo_t Uplo>
 auto triangular_impl(triangular<Uplo>) -> std::true_type;
 
 auto triangular_impl(...) -> std::false_type;
 }
-}
 
 template <class T>
 constexpr bool triangular() {
-  using Result =
-      decltype(detail::structure::triangular_impl(std::declval<T>()));
+  using Result = decltype(DETAIL_NS::triangular_impl(std::declval<T>()));
   return Result::value;
 }
 
-//////////////
-// diagonal //
-//////////////
-
+//------------------------------------------------------------------------------
+// diagonal
+//------------------------------------------------------------------------------
 template <class T>
 constexpr bool diagonal() {
   return std::is_same<T, linear_algebra::structure::diagonal>::value;
 }
 
-////////////
-// square //
-////////////
-
+//------------------------------------------------------------------------------
+// square
+//------------------------------------------------------------------------------
 template <class T>
 constexpr bool square() {
   return symmetric<T>() || hermitian<T>() || triangular<T>() || diagonal<T>();
 }
 }
 
-/////////////
-// product //
-/////////////
-
-namespace detail {
-namespace structure {
-
+//------------------------------------------------------------------------------
+// product
+//------------------------------------------------------------------------------
+namespace DETAIL_NS {
 template <class Structure>
 auto product_impl(Structure, Structure) -> Structure;
 
@@ -173,19 +165,15 @@ template <class T,
           CONCEPT_REQUIRES(concept::symmetric<T>() || concept::triangular<T>())>
 auto product_impl(T, matrix_general) -> matrix_general;
 }
-}
 
 template <class A, class B>
-using product = decltype(
-    detail::structure::product_impl(std::declval<A>(), std::declval<B>()));
+using product =
+    decltype(DETAIL_NS::product_impl(std::declval<A>(), std::declval<B>()));
 
-///////////////
-// transpose //
-///////////////
-
-namespace detail {
-namespace structure {
-
+//------------------------------------------------------------------------------
+// transpose
+//------------------------------------------------------------------------------
+namespace DETAIL_NS {
 inline auto transpose_impl(matrix_general) -> matrix_general;
 
 template <class T, CONCEPT_REQUIRES(concept::symmetric<T>())>
@@ -195,19 +183,16 @@ inline auto transpose_impl(lower_triangular) -> upper_triangular;
 
 inline auto transpose_impl(upper_triangular) -> lower_triangular;
 }
-}
 
 template <class A>
-using transpose =
-    decltype(detail::structure::transpose_impl(std::declval<A>()));
+using transpose = decltype(DETAIL_NS::transpose_impl(std::declval<A>()));
 }
 }
 }
 
-///////////
-// merge //
-///////////
-
+//------------------------------------------------------------------------------
+// merge
+//------------------------------------------------------------------------------
 namespace echo {
 namespace numeric_array {
 namespace structure_traits {
@@ -242,3 +227,5 @@ struct merge<linear_algebra::structure::lower_triangular,
 }
 }
 }
+
+#undef DETAIL_NS

@@ -12,7 +12,6 @@
 using namespace echo;
 using namespace echo::linear_algebra;
 
-// const execution_context::intel_tbb::ExpressionExecuter executer{};
 const execution_context::intel::ExecutionContext executer{};
 
 TEST_CASE("matrix") {
