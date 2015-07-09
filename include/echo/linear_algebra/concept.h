@@ -18,8 +18,8 @@ namespace DETAIL_NS {
 struct SquareCompatibleShape : Concept {
   template <class T>
   auto require(T&& shape) -> list<
-      k_array::concept::shape<2, T>(),
-      same<shape_traits::extent_type<0, T>, shape_traits::extent_type<1, T>>()>;
+      k_array::concept::shape_<2, T>(),
+      same<decltype(get_extent<0>(shape)), decltype(get_extent<1>(shape))>()>;
 };
 }
 
@@ -35,7 +35,7 @@ namespace DETAIL_NS {
 struct Matrix : Concept {
   template <class T>
   auto require(T&& x)
-      -> list<k_array::concept::shape<2, uncvref_t<decltype(x.shape())>>(),
+      -> list<k_array::concept::shape_<2, uncvref_t<decltype(x.shape())>>(),
               numeric_array::concept::numeric_array<T>(),
               matrix_traits::operation<T>() ==
                   execution_context::matrix_operation_t::none>;
@@ -110,7 +110,7 @@ constexpr bool weak_matrix() {
 //------------------------------------------------------------------------------
 template <class T>
 constexpr bool vector() {
-  return numeric_array::concept::numeric_array<1, T>();
+  return numeric_array::concept::numeric_array_<1, T>();
 }
 
 //------------------------------------------------------------------------------
@@ -119,8 +119,8 @@ constexpr bool vector() {
 namespace DETAIL_NS {
 struct RowVector : Concept {
   template <class T>
-  auto require() -> list<
-      matrix<T>(), same<shaped_traits::extent_type<0, T>, StaticIndex<1>>()>;
+  auto require(T&& x)
+      -> list<matrix<T>(), same<decltype(get_extent<0>(x)), StaticIndex<1>>()>;
 };
 }
 
@@ -143,8 +143,8 @@ constexpr bool modifiable_row_vector_forward() {
 namespace DETAIL_NS {
 struct ColumnVector : Concept {
   template <class T>
-  auto require(T && ) -> list<
-      matrix<T>(), same<shaped_traits::extent_type<1, T>, StaticIndex<1>>()>;
+  auto require(T&& x)
+      -> list<matrix<T>(), same<decltype(get_extent<1>(x)), StaticIndex<1>>()>;
 };
 }
 

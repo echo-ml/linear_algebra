@@ -30,6 +30,7 @@ TEST_CASE("general product") {
   auto v2 = make_numeric_array_view<linear_algebra::structure::matrix_general>(
       m2.data(), make_subshape(m2.shape(), slice::counted_range(0, 2_index),
                                slice::counted_range(0, 3_index)));
+
   auto v3 = make_numeric_array_view<linear_algebra::structure::matrix_general>(
       m2.data(), make_subshape(make_dimensionality(3_index, 1_index),
                                make_strides(2_index, 1_index)));
@@ -62,7 +63,6 @@ TEST_CASE("general product") {
     emplace_product(executer, transpose(m2), transpose(m1), m4);
     ARRAY_EQUAL(m4, {{16, 22}, {34, 49}, {52, 76}, {70, 103}});
   }
-
   SECTION("strided emplace product") {
     emplace_product(executer, v2, transpose(m1), m5);
     ARRAY_EQUAL(m5, {{36, 48}, {42, 57}});

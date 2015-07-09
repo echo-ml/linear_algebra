@@ -20,7 +20,7 @@ template <class Scalar, class Structure, class Shape,
           CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
                            execution_context::concept::structure<Structure>() &&
                            k_array::concept::contiguous_shape<Shape>() &&
-                           k_array::concept::shape<1, Shape>() &&
+                           k_array::concept::shape_<1, Shape>() &&
                            memory::concept::memory_backend<MemoryBackend>())>
 auto vector_type() -> NumericArray<Scalar, Shape, Structure, MemoryBackend>;
 
@@ -42,7 +42,7 @@ template <class Scalar, class Shape,
           class MemoryBackend = memory::SimdAllocator<Scalar>,
           CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
                            k_array::concept::contiguous_shape<Shape>() &&
-                           k_array::concept::shape<2, Shape>() &&
+                           k_array::concept::shape_<2, Shape>() &&
                            std::is_same<shape_traits::extent_type<0, Shape>,
                                         StaticIndex<1>>::value &&
                            memory::concept::memory_backend<MemoryBackend>())>
@@ -67,7 +67,7 @@ template <class Scalar, class Shape,
           class MemoryBackend = memory::SimdAllocator<Scalar>,
           CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
                            k_array::concept::contiguous_shape<Shape>() &&
-                           k_array::concept::shape<2, Shape>() &&
+                           k_array::concept::shape_<2, Shape>() &&
                            std::is_same<shape_traits::extent_type<1, Shape>,
                                         StaticIndex<1>>::value &&
                            memory::concept::memory_backend<MemoryBackend>())>

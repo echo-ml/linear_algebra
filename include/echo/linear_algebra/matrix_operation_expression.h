@@ -46,7 +46,7 @@ template <class Structure, matrix_operation_t Operation, class Pointer,
           class Shape,
           CONCEPT_REQUIRES(execution_context::concept::structure<Structure>() &&
                            echo::concept::contiguous_iterator<Pointer>() &&
-                           k_array::concept::shape<2, Shape>())>
+                           k_array::concept::shape_<2, Shape>())>
 auto make_matrix_operation_expression(Pointer data, const Shape& shape) {
   return MatrixOperationExpression<Pointer, Shape, Structure, Operation>(data,
                                                                          shape);

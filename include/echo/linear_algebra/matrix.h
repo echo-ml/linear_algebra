@@ -22,7 +22,7 @@ template <class Scalar, class Structure, class Shape = Shape<index_t, index_t>,
                            execution_context::concept::structure<Structure>() &&
                            !structure::concept::square<Structure>() &&
                            k_array::concept::contiguous_shape<Shape>() &&
-                           k_array::concept::shape<2, Shape>() &&
+                           k_array::concept::shape_<2, Shape>() &&
                            memory::concept::memory_backend<MemoryBackend>())>
 auto matrix_type() -> NumericArray<Scalar, Shape, Structure, MemoryBackend>;
 
@@ -50,7 +50,7 @@ template <class Scalar, class Structure, class Shape,
           CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
                            structure::concept::square<Structure>() &&
                            k_array::concept::contiguous_shape<Shape>() &&
-                           k_array::concept::shape<2, Shape>() &&
+                           k_array::concept::shape_<2, Shape>() &&
                            concept::square_compatible_shape<Shape>() &&
                            memory::concept::memory_backend<MemoryBackend>())>
 auto matrix_type() -> NumericArray<Scalar, Shape, Structure, MemoryBackend>;

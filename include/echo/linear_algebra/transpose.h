@@ -12,7 +12,7 @@ namespace linear_algebra {
 // transpose_shape
 //------------------------------------------------------------------------------
 namespace DETAIL_NS {
-template<class Shape, CONCEPT_REQUIRES(k_array::concept::shape<2, Shape>())>
+template<class Shape, CONCEPT_REQUIRES(k_array::concept::shape_<2, Shape>())>
 auto transpose_shape(const Shape& shape) {
   return make_subshape(
     make_dimensionality(get_extent<1>(shape), get_extent<0>(shape)),

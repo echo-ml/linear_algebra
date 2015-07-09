@@ -17,7 +17,8 @@ const execution_context::intel::ExecutionContext executer{};
 TEST_CASE("matrix") {
   Matrix<double, StaticIndex<3>, StaticIndex<2>> m1;
   m1(0, 0) = 7;
-  Matrix<double, ShapeC<3, 2>> m2;
+
+  Matrix<double, Shape<StaticIndex<3>, StaticIndex<2>>> m2;
   m2(0, 0) = 7;
 
   SymmetricMatrix<float, StaticIndex<5>> s1;

@@ -15,23 +15,14 @@ namespace concept {
 namespace DETAIL_NS {
 struct CompatibleProductShapes : Concept {
   template <class A, class B>
-  auto require(A&&, B && ) -> list<k_array::concept::compatible_extents<
-      dimensioned_traits::extent_type<1, A>,
-      dimensioned_traits::extent_type<0, B>>()
-
-                                   >;
+  auto require(A&& a, B&& b)
+      -> list<same<decltype(get_extent<1>(a)), decltype(get_extent<0>(b))>()>;
 
   template <class A, class B, class C>
-  auto require(A&&, B&&, C && )
-      -> list<k_array::concept::compatible_extents<
-                  dimensioned_traits::extent_type<0, A>,
-                  dimensioned_traits::extent_type<0, C>>(),
-              k_array::concept::compatible_extents<
-                  dimensioned_traits::extent_type<1, A>,
-                  dimensioned_traits::extent_type<0, B>>(),
-              k_array::concept::compatible_extents<
-                  dimensioned_traits::extent_type<1, B>,
-                  dimensioned_traits::extent_type<1, C>>()>;
+  auto require(A&& a, B&& b, C&& c)
+      -> list<same<decltype(get_extent<0>(a)), decltype(get_extent<0>(c))>(),
+              same<decltype(get_extent<1>(a)), decltype(get_extent<0>(b))>(),
+              same<decltype(get_extent<1>(b)), decltype(get_extent<1>(c))>()>;
 };
 }
 
@@ -51,23 +42,18 @@ constexpr bool compatible_product_shapes() {
 namespace DETAIL_NS {
 struct MatrixStrided : Concept {
   template <class T>
-  auto require(T&& x) -> list<
-      std::is_same<shaped_traits::stride_type<0, T>, StaticIndex<1>>::value>;
-};
-struct TransposedMatrixStrided : Concept {
-  template <class T>
-  auto require(T&& x) -> list<
-      std::is_same<shaped_traits::stride_type<1, T>, StaticIndex<1>>::value>;
+  auto require(T&& x)
+      -> list<(linear_algebra::concept::matrix<T>() &&
+               same<decltype(get_stride<0>(x)), StaticIndex<1>>()) ||
+              (linear_algebra::concept::weak_matrix<T>() &&
+               matrix_traits::operation<T>() != matrix_operation_t::none &&
+               same<decltype(get_stride<1>(x)), StaticIndex<1>>())>;
 };
 }
 
 template <class T>
 constexpr bool matrix_strided() {
-  return linear_algebra::concept::matrix<T>()
-             ? models<DETAIL_NS::MatrixStrided, T>()
-             : linear_algebra::concept::weak_matrix<T>()
-                   ? models<DETAIL_NS::TransposedMatrixStrided, T>()
-                   : false;
+  return models<DETAIL_NS::MatrixStrided, T>();
 }
 
 //------------------------------------------------------------------------------
@@ -154,6 +140,24 @@ constexpr bool matrix_vector_product_shaped() {
 //------------------------------------------------------------------------------
 // gemm
 //------------------------------------------------------------------------------
+namespace DETAIL_NS {
+struct Gemm : Concept {
+  template <class A, class B>
+  auto require(A&&, B && )
+      -> list<matrix_matrix_product_shaped<A, B>() &&
+              linear_algebra::concept::weak_general_matrix<A>() &&
+              linear_algebra::concept::weak_general_matrix<B>() &&
+              !linear_algebra::concept::column_vector<B>()>;
+  template <class A, class B, class C>
+  auto require(A&&, B&&, C && )
+      -> list<matrix_matrix_product_shaped<A, B, C>() &&
+              linear_algebra::concept::weak_general_matrix<A>() &&
+              linear_algebra::concept::weak_general_matrix<B>() &&
+              linear_algebra::concept::general_matrix<C>() &&
+              !linear_algebra::concept::column_vector<C>()>;
+};
+}
+
 template <class A, class B>
 constexpr bool gemm() {
   return matrix_matrix_product_shaped<A, B>() &&
