@@ -57,32 +57,6 @@ constexpr bool matrix_strided() {
 }
 
 //------------------------------------------------------------------------------
-// compatible_product_values
-//------------------------------------------------------------------------------
-namespace DETAIL_NS {
-struct CompatibleProductValues : Concept {
-  template <class A, class B>
-  auto require(A&& a, B&& b) -> list<
-      same<uncvref_t<decltype(a.data())>, uncvref_t<decltype(b.data())>>()>;
-
-  template <class A, class B, class C>
-  auto require(A&& a, B&& b, C&& c) -> list<
-      same<uncvref_t<decltype(a.data())>, uncvref_t<decltype(b.data())>>(),
-      same<uncvref_t<decltype(a.data())>, uncvref_t<decltype(c.data())>>()>;
-};
-}
-
-template <class A, class B>
-constexpr bool compatible_product_values() {
-  return models<DETAIL_NS::CompatibleProductValues, A, B>();
-}
-
-template <class A, class B, class C>
-constexpr bool compatible_product_values() {
-  return models<DETAIL_NS::CompatibleProductValues, A, B, C>();
-}
-
-//------------------------------------------------------------------------------
 // matrix_matrix_product_shaped
 //------------------------------------------------------------------------------
 namespace DETAIL_NS {
@@ -90,13 +64,13 @@ struct MatrixMatrixProductShaped : Concept {
   template <class A, class B>
   auto require(A&&, B && )
       -> list<compatible_product_shapes<A, B>(), matrix_strided<A>(),
-              matrix_strided<B>(), compatible_product_values<A, B>()>;
+              matrix_strided<B>(), linear_algebra::concept::like_valued<A, B>()>;
 
   template <class A, class B, class C>
   auto require(A&&, B&&, C && )
       -> list<compatible_product_shapes<A, B, C>(), matrix_strided<A>(),
               matrix_strided<B>(), matrix_strided<C>(),
-              compatible_product_values<A, B, C>()>;
+              linear_algebra::concept::like_valued<A, B, C>()>;
 };
 }
 
@@ -118,12 +92,12 @@ struct MatrixVectorProductShaped : Concept {
   template <class A, class X>
   auto require(A&&, X && )
       -> list<compatible_product_shapes<A, X>(), matrix_strided<A>(),
-              compatible_product_values<A, X>()>;
+              linear_algebra::concept::like_valued<A, X>()>;
 
   template <class A, class X, class Y>
   auto require(A&&, X&&, Y && )
       -> list<compatible_product_shapes<A, X, Y>(), matrix_strided<A>(),
-              compatible_product_values<A, X, Y>()>;
+              linear_algebra::concept::like_valued<A, X, Y>()>;
 };
 }
 

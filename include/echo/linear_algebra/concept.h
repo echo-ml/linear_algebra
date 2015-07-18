@@ -304,6 +304,24 @@ template <class T>
 constexpr bool matrix_expression() {
   return numeric_array::concept::dimensioned_expression<2, T>();
 }
+
+//------------------------------------------------------------------------------
+// like_valued
+//------------------------------------------------------------------------------
+namespace DETAIL_NS {
+struct LikeValued : Concept {
+  template<class AFirst, class... ARest>
+  auto require(AFirst&& a_first, ARest&&... a_rest) -> list<
+    and_c<same<uncvref_t<decltype(a_first.data())>,
+      uncvref_t<decltype(a_rest.data())>>()...>()
+  >;
+};
+}
+
+template<class... AX>
+constexpr bool like_valued() {
+  return models<DETAIL_NS::LikeValued, AX...>();
+}
 }
 }
 }

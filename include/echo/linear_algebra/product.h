@@ -19,8 +19,9 @@ template <class ExecutionContext, class A, class B, class C,
               blas::concept::gemm<A, B, uncvref_t<C>>() &&
               linear_algebra::concept::modifiable_matrix_forward<C>())>
 auto emplace_product(const ExecutionContext& execution_context,
-                     k_array_traits::value_type<A> alpha, const A& a,
-                     const B& b, k_array_traits::value_type<A> beta, C&& c) {
+                     numeric_array_traits::value_type<A> alpha, const A& a,
+                     const B& b, numeric_array_traits::value_type<A> beta,
+                     C&& c) {
   auto a_m = get_extent<0>(a);
   auto a_n = get_extent<1>(a);
   auto lda = get_leading_dimension(a);
@@ -51,8 +52,9 @@ template <class ExecutionContext, class A, class X, class Y,
               blas::concept::gemv<A, X, uncvref_t<Y>>() &&
               linear_algebra::concept::modifiable_matrix_forward<Y>())>
 auto emplace_product(const ExecutionContext& execution_context,
-                     k_array_traits::value_type<A> alpha, const A& a,
-                     const X& x, k_array_traits::value_type<A> beta, Y&& y) {
+                     numeric_array_traits::value_type<A> alpha, const A& a,
+                     const X& x, numeric_array_traits::value_type<A> beta,
+                     Y&& y) {
   auto a_m = get_extent<0>(a);
   auto a_n = get_extent<1>(a);
   auto lda = get_leading_dimension(a);
@@ -79,8 +81,9 @@ template <class ExecutionContext, class A, class B, class C,
               blas::concept::left_symm<A, B, uncvref_t<C>>() &&
               linear_algebra::concept::modifiable_matrix_forward<C>())>
 auto emplace_product(const ExecutionContext& execution_context,
-                     k_array_traits::value_type<A> alpha, const A& a,
-                     const B& b, k_array_traits::value_type<A> beta, C&& c) {
+                     numeric_array_traits::value_type<A> alpha, const A& a,
+                     const B& b, numeric_array_traits::value_type<A> beta,
+                     C&& c) {
   auto a_m = get_extent<0>(a);
   auto lda = get_leading_dimension(a);
 
@@ -109,8 +112,9 @@ template <class ExecutionContext, class A, class B, class C,
               blas::concept::right_symm<A, B, uncvref_t<C>>() &&
               linear_algebra::concept::modifiable_matrix_forward<C>())>
 auto emplace_product(const ExecutionContext& execution_context,
-                     k_array_traits::value_type<A> alpha, const A& a,
-                     const B& b, k_array_traits::value_type<A> beta, C&& c) {
+                     numeric_array_traits::value_type<A> alpha, const A& a,
+                     const B& b, numeric_array_traits::value_type<A> beta,
+                     C&& c) {
   auto a_m = get_extent<0>(a);
   auto lda = get_leading_dimension(a);
 
@@ -140,8 +144,9 @@ template <class ExecutionContext, class A, class X, class Y,
               blas::concept::symv<A, X, uncvref_t<Y>>() &&
               linear_algebra::concept::modifiable_matrix_forward<Y>())>
 auto emplace_product(const ExecutionContext& execution_context,
-                     k_array_traits::value_type<A> alpha, const A& a,
-                     const X& x, k_array_traits::value_type<A> beta, Y&& y) {
+                     numeric_array_traits::value_type<A> alpha, const A& a,
+                     const X& x, numeric_array_traits::value_type<A> beta,
+                     Y&& y) {
   auto a_m = get_extent<0>(a);
   auto lda = get_leading_dimension(a);
 
@@ -165,7 +170,7 @@ template <class ExecutionContext, class A, class B, class C,
               blas::concept::product<A, B, uncvref_t<C>>() &&
               linear_algebra::concept::modifiable_matrix_forward<C>())>
 auto emplace_product(const ExecutionContext& execution_context,
-                     k_array_traits::value_type<A> alpha, const A& a,
+                     numeric_array_traits::value_type<A> alpha, const A& a,
                      const B& b, C&& c) {
   return emplace_product(execution_context, alpha, a, b, 0, c);
 }
@@ -176,7 +181,8 @@ template <class ExecutionContext, class A, class B, class C,
               blas::concept::product<A, B, uncvref_t<C>>() &&
               linear_algebra::concept::modifiable_matrix_forward<C>())>
 auto emplace_product(const ExecutionContext& execution_context, const A& a,
-                     const B& b, k_array_traits::value_type<A> beta, C&& c) {
+                     const B& b, numeric_array_traits::value_type<A> beta,
+                     C&& c) {
   return emplace_product(execution_context, 1, a, b, beta, c);
 }
 
@@ -201,9 +207,9 @@ template <
         execution_context::concept::allocation_backend<ExecutionContext>() &&
         blas::concept::product<A, B, C>())>
 auto product(const ExecutionContext& execution_context,
-             k_array_traits::value_type<A> alpha, const A& a, const B& b,
-             k_array_traits::value_type<A> beta, const C& c) {
-  using Scalar = k_array_traits::value_type<A>;
+             numeric_array_traits::value_type<A> alpha, const A& a, const B& b,
+             numeric_array_traits::value_type<A> beta, const C& c) {
+  using Scalar = numeric_array_traits::value_type<A>;
   using Structure = numeric_array_traits::structure<C>;
   auto c_shape = make_shape(get_extent<0>(c), get_extent<1>(c));
   auto allocator = make_aligned_allocator<Scalar>(execution_context);
@@ -222,7 +228,7 @@ template <
         execution_context::concept::allocation_backend<ExecutionContext>() &&
         blas::concept::product<A, B, C>())>
 auto product(const ExecutionContext& execution_context, const A& a, const B& b,
-             k_array_traits::value_type<A> beta, const C& c) {
+             numeric_array_traits::value_type<A> beta, const C& c) {
   return product(execution_context, 1, a, b, beta, c);
 }
 
@@ -233,8 +239,9 @@ template <
         execution_context::concept::allocation_backend<ExecutionContext>() &&
         blas::concept::product<A, B>())>
 auto product(const ExecutionContext& execution_context,
-             k_array_traits::value_type<A> alpha, const A& a, const B& b) {
-  using Scalar = k_array_traits::value_type<A>;
+             numeric_array_traits::value_type<A> alpha, const A& a,
+             const B& b) {
+  using Scalar = numeric_array_traits::value_type<A>;
   using Structure = structure::product<numeric_array_traits::structure<A>,
                                        numeric_array_traits::structure<B>>;
   auto c_shape = make_shape(get_extent<0>(a), get_extent<1>(b));
