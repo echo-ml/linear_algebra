@@ -106,6 +106,22 @@ constexpr bool weak_matrix() {
 }
 
 //------------------------------------------------------------------------------
+// modifiable_weak_matrix_forward
+//------------------------------------------------------------------------------
+namespace DETAIL_NS {
+struct ModifiableWeakMatrixForward : Concept {
+  template <class T>
+  auto require(T&& x) -> list<weak_matrix<uncvref_t<T>>(),
+                              echo::concept::writable<decltype(x.data())>()>;
+};
+}
+
+template <class T>
+constexpr bool modifiable_weak_matrix_forward() {
+  return models<DETAIL_NS::ModifiableWeakMatrixForward, T>();
+}
+
+//------------------------------------------------------------------------------
 // vector
 //------------------------------------------------------------------------------
 template <class T>
@@ -338,8 +354,7 @@ struct LikeValued : Concept {
 
 template <class... AX>
 constexpr bool like_valued() {
-  return true;
-  // return models<DETAIL_NS::LikeValued, AX...>();
+  return models<DETAIL_NS::LikeValued, AX...>();
 }
 }
 }

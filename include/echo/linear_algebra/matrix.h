@@ -38,14 +38,14 @@ auto matrix_type()
     -> NumericArray<Scalar, Shape<Extent1, Extent2>, Structure, MemoryBackend>;
 
 template <class Scalar, class Structure,
-          class MemoryBackend = memory::SimdAllocator<Scalar>,
+          class MemoryBackend,
           CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
                            execution_context::concept::structure<Structure>() &&
                            memory::concept::memory_backend<MemoryBackend>())>
 auto matrix_type()
     -> NumericArray<Scalar, Shape<index_t, index_t>, Structure, MemoryBackend>;
 
-template <class Scalar, class Structure, class Shape,
+template <class Scalar, class Structure, class Shape = Shape<index_t, index_t>,
           class MemoryBackend = memory::SimdAllocator<Scalar>,
           CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
                            structure::concept::square<Structure>() &&
@@ -64,6 +64,15 @@ template <class Scalar, class Structure, class Extent,
                            memory::concept::memory_backend<MemoryBackend>())>
 auto matrix_type()
     -> NumericArray<Scalar, Shape<Extent, Extent>, Structure, MemoryBackend>;
+
+template <class Scalar, class Structure,
+          class MemoryBackend,
+          CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
+                           execution_context::concept::structure<Structure>() &&
+                           structure::concept::square<Structure>() &&
+                           memory::concept::memory_backend<MemoryBackend>())>
+auto matrix_type()
+    -> NumericArray<Scalar, Shape<index_t, index_t>, Structure, MemoryBackend>;
 }
 
 //------------------------------------------------------------------------------
