@@ -15,7 +15,8 @@ namespace linear_algebra {
 template <class ExecutionContext, class A,
           CONCEPT_REQUIRES(
               execution_context::concept::lapack_executer<ExecutionContext>() &&
-              lapack::concept::potrf<uncvref_t<A>>())>
+              lapack::concept::potrf<uncvref_t<A>>() &&
+              concept::modifiable_matrix_forward<A>())>
 auto emplace_cholesky_factorize(const ExecutionContext& execution_context,
                                 A&& a) {
   auto n = get_extent<0>(a);
@@ -39,23 +40,36 @@ auto emplace_cholesky_factorize(const ExecutionContext& execution_context,
 template <class ExecutionContext, class A, class B,
           CONCEPT_REQUIRES(
               execution_context::concept::lapack_executer<ExecutionContext>() &&
-              lapack::concept::potrf<A, uncvref_t<B>>())>
+              lapack::concept::potrf<A, uncvref_t<B>>() &&
+              concept::modifiable_matrix_forward<B>())>
 auto emplace_cholesky_factorize(const ExecutionContext& execution_context,
                                 numeric_array_traits::value_type<A> alpha,
-                                const A& a, B&& b) {}
+                                const A& a, B&& b) {
+  constexpr auto a_storage_uplo =
+      numeric_array_traits::structure<A>::storage_uplo;
+  auto a_hermitian_view =
+      make_numeric_array_view<structure::hermitian_uplo<a_storage_uplo>,
+                              numeric_array_traits::memory_backend_tag<A>>(
+          a.data(), a.shape());
+  constexpr auto b_uplo = numeric_array_traits::structure<uncvref_t<B>>::uplo;
+  auto b_hermitian_view = make_numeric_array_view<
+      structure::hermitian_uplo<b_uplo>,
+      numeric_array_traits::memory_backend_tag<uncvref_t<B>>>(b.data(),
+                                                              b.shape());
+  execution_context(execution_mode::simd | execution_mode::parallel_coarse |
+                        execution_mode::nontemporal,
+                    b_hermitian_view = alpha * a_hermitian_view);
+  return emplace_cholesky_factorize(execution_context, b_hermitian_view);
+}
 
 template <class ExecutionContext, class A, class B,
           CONCEPT_REQUIRES(
               execution_context::concept::lapack_executer<ExecutionContext>() &&
-              lapack::concept::potrf<A, uncvref_t<B>>())>
+              lapack::concept::potrf<A, uncvref_t<B>>() &&
+              concept::modifiable_matrix_forward<B>())>
 auto emplace_cholesky_factorize(const ExecutionContext& execution_context,
-                                const A& a, B&& b) {}
-
-//------------------------------------------------------------------------------
-// cholesky_factorize
-//------------------------------------------------------------------------------
-template <class ExecutionContext, class A, class B>
-auto cholesky_factorize(const ExecutionContext& execution_context, const A& a) {
+                                const A& a, B&& b) {
+  return emplace_cholesky_factorize(execution_context, 1, a, b);
 }
 }
 }

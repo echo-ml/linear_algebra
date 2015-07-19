@@ -1,6 +1,7 @@
 #include <echo/linear_algebra/cholesky.h>
 #include <echo/linear_algebra/matrix.h>
 #include <echo/intel_execution_context.h>
+#include <echo/numeric_array/test.h>
 #include <echo/test.h>
 
 using namespace echo;
@@ -10,22 +11,32 @@ static const execution_context::intel::ExecutionContext executer{};
 
 TEST_CASE("potrf") {
   SymmetricMatrix<double> s1(3);
+  LowerTriangularMatrix<double> r1(3);
 
-  s1 = {
-    {2, -1, 0},
-    {-1, 2, -1},
-    {0, -1, 2}};
+  s1 = {{2, -1, 0}, {-1, 2, -1}, {0, -1, 2}};
 
-  auto result = emplace_cholesky_factorize(executer, s1);
-
-  // LapackBackend lapack_backend;
-
-  // std::cout << MatrixForm() << m1;
-  // std::cout << '\n';
-  // auto v1 = cholesky_factorize(lapack_backend, m1);
-  // REQUIRE(bool(v1));
-  // std::cout << MatrixForm() << v1;
-
-  // auto m1_inverse = cholesky_invert(lapack_backend, *v1);
-  // std::cout << MatrixForm() << m1_inverse << '\n';
+  SECTION("emplace_cholesky_factorize1") {
+    auto result = emplace_cholesky_factorize(executer, s1);
+    CHECK(result);
+    ARRAY_EQUAL(
+        *result,
+        {{1.41421, 0., 0.}, {-0.707107, 1.22474, 0.}, {0., -0.816497, 1.1547}},
+        .01);
+  }
+  SECTION("emplace_cholesky_factorize1") {
+    auto result = emplace_cholesky_factorize(executer, s1, r1);
+    CHECK(result);
+    ARRAY_EQUAL(
+        r1,
+        {{1.41421, 0., 0.}, {-0.707107, 1.22474, 0.}, {0., -0.816497, 1.1547}},
+        .01);
+  }
+  SECTION("emplace_cholesky_factorize1") {
+    auto result = emplace_cholesky_factorize(executer, 1.0, s1, r1);
+    CHECK(result);
+    ARRAY_EQUAL(
+        r1,
+        {{1.41421, 0., 0.}, {-0.707107, 1.22474, 0.}, {0., -0.816497, 1.1547}},
+        .01);
+  }
 }

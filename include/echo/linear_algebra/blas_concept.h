@@ -57,58 +57,62 @@ constexpr bool matrix_strided() {
 }
 
 //------------------------------------------------------------------------------
-// matrix_matrix_product_shaped
+// compatible_matrix_matrix_product
 //------------------------------------------------------------------------------
 namespace DETAIL_NS {
-struct MatrixMatrixProductShaped : Concept {
+struct CompatibleMatrixMatrixProduct : Concept {
   template <class A, class B>
-  auto require(A&&, B && )
-      -> list<compatible_product_shapes<A, B>(), matrix_strided<A>(),
-              matrix_strided<B>(), linear_algebra::concept::like_valued<A, B>()>;
+  auto require(A&&, B && ) -> list<
+      linear_algebra::concept::standard_numeric_valued<A>(),
+      compatible_product_shapes<A, B>(), matrix_strided<A>(),
+      matrix_strided<B>(), linear_algebra::concept::like_valued<A, B>()>;
 
   template <class A, class B, class C>
   auto require(A&&, B&&, C && )
-      -> list<compatible_product_shapes<A, B, C>(), matrix_strided<A>(),
+      -> list<linear_algebra::concept::standard_numeric_valued<A>(),
+              compatible_product_shapes<A, B, C>(), matrix_strided<A>(),
               matrix_strided<B>(), matrix_strided<C>(),
               linear_algebra::concept::like_valued<A, B, C>()>;
 };
 }
 
 template <class A, class B>
-constexpr bool matrix_matrix_product_shaped() {
-  return models<DETAIL_NS::MatrixMatrixProductShaped, A, B>();
+constexpr bool compatible_matrix_matrix_product() {
+  return models<DETAIL_NS::CompatibleMatrixMatrixProduct, A, B>();
 }
 
 template <class A, class B, class C>
-constexpr bool matrix_matrix_product_shaped() {
-  return models<DETAIL_NS::MatrixMatrixProductShaped, A, B, C>();
+constexpr bool compatible_matrix_matrix_product() {
+  return models<DETAIL_NS::CompatibleMatrixMatrixProduct, A, B, C>();
 }
 
 //------------------------------------------------------------------------------
-// matrix_vector_product_shaped
+// compatible_matrix_vector_product
 //------------------------------------------------------------------------------
 namespace DETAIL_NS {
-struct MatrixVectorProductShaped : Concept {
+struct CompatibleMatrixVectorProduct : Concept {
   template <class A, class X>
   auto require(A&&, X && )
-      -> list<compatible_product_shapes<A, X>(), matrix_strided<A>(),
+      -> list<linear_algebra::concept::standard_numeric_valued<A>(),
+              compatible_product_shapes<A, X>(), matrix_strided<A>(),
               linear_algebra::concept::like_valued<A, X>()>;
 
   template <class A, class X, class Y>
   auto require(A&&, X&&, Y && )
-      -> list<compatible_product_shapes<A, X, Y>(), matrix_strided<A>(),
+      -> list<linear_algebra::concept::standard_numeric_valued<A>(),
+              compatible_product_shapes<A, X, Y>(), matrix_strided<A>(),
               linear_algebra::concept::like_valued<A, X, Y>()>;
 };
 }
 
 template <class A, class X>
-constexpr bool matrix_vector_product_shaped() {
-  return models<DETAIL_NS::MatrixVectorProductShaped, A, X>();
+constexpr bool compatible_matrix_vector_product() {
+  return models<DETAIL_NS::CompatibleMatrixVectorProduct, A, X>();
 }
 
 template <class A, class X, class Y>
-constexpr bool matrix_vector_product_shaped() {
-  return models<DETAIL_NS::MatrixVectorProductShaped, A, X, Y>();
+constexpr bool compatible_matrix_vector_product() {
+  return models<DETAIL_NS::CompatibleMatrixVectorProduct, A, X, Y>();
 }
 
 //------------------------------------------------------------------------------
@@ -118,13 +122,13 @@ namespace DETAIL_NS {
 struct Gemm : Concept {
   template <class A, class B>
   auto require(A&&, B && )
-      -> list<matrix_matrix_product_shaped<A, B>() &&
+      -> list<compatible_matrix_matrix_product<A, B>() &&
               linear_algebra::concept::weak_general_matrix<A>() &&
               linear_algebra::concept::weak_general_matrix<B>() &&
               !linear_algebra::concept::column_vector<B>()>;
   template <class A, class B, class C>
   auto require(A&&, B&&, C && )
-      -> list<matrix_matrix_product_shaped<A, B, C>() &&
+      -> list<compatible_matrix_matrix_product<A, B, C>() &&
               linear_algebra::concept::weak_general_matrix<A>() &&
               linear_algebra::concept::weak_general_matrix<B>() &&
               linear_algebra::concept::general_matrix<C>() &&
@@ -134,7 +138,7 @@ struct Gemm : Concept {
 
 template <class A, class B>
 constexpr bool gemm() {
-  return matrix_matrix_product_shaped<A, B>() &&
+  return compatible_matrix_matrix_product<A, B>() &&
          linear_algebra::concept::weak_general_matrix<A>() &&
          linear_algebra::concept::weak_general_matrix<B>() &&
          !linear_algebra::concept::column_vector<B>();
@@ -142,7 +146,7 @@ constexpr bool gemm() {
 
 template <class A, class B, class C>
 constexpr bool gemm() {
-  return matrix_matrix_product_shaped<A, B, C>() &&
+  return compatible_matrix_matrix_product<A, B, C>() &&
          linear_algebra::concept::weak_general_matrix<A>() &&
          linear_algebra::concept::weak_general_matrix<B>() &&
          linear_algebra::concept::general_matrix<C>() &&
@@ -154,7 +158,7 @@ constexpr bool gemm() {
 //------------------------------------------------------------------------------
 template <class A, class X>
 constexpr bool gemv() {
-  return matrix_vector_product_shaped<A, X>() &&
+  return compatible_matrix_vector_product<A, X>() &&
          linear_algebra::concept::weak_general_matrix<A>() &&
          linear_algebra::concept::weak_general_matrix<X>() &&
          linear_algebra::concept::column_vector<X>();
@@ -162,7 +166,7 @@ constexpr bool gemv() {
 
 template <class A, class X, class Y>
 constexpr bool gemv() {
-  return matrix_vector_product_shaped<A, X, Y>() &&
+  return compatible_matrix_vector_product<A, X, Y>() &&
          linear_algebra::concept::weak_general_matrix<A>() &&
          linear_algebra::concept::weak_general_matrix<X>() &&
          linear_algebra::concept::column_vector<Y>();
@@ -173,7 +177,7 @@ constexpr bool gemv() {
 //------------------------------------------------------------------------------
 template <class A, class B>
 constexpr bool left_symm() {
-  return matrix_matrix_product_shaped<A, B>() &&
+  return compatible_matrix_matrix_product<A, B>() &&
          linear_algebra::concept::symmetric_matrix<A>() &&
          linear_algebra::concept::general_matrix<B>() &&
          !linear_algebra::concept::column_vector<B>();
@@ -181,7 +185,7 @@ constexpr bool left_symm() {
 
 template <class A, class B, class C>
 constexpr bool left_symm() {
-  return matrix_matrix_product_shaped<A, B, C>() &&
+  return compatible_matrix_matrix_product<A, B, C>() &&
          linear_algebra::concept::symmetric_matrix<A>() &&
          linear_algebra::concept::general_matrix<B>() &&
          linear_algebra::concept::general_matrix<C>() &&
@@ -193,14 +197,14 @@ constexpr bool left_symm() {
 //------------------------------------------------------------------------------
 template <class A, class B>
 constexpr bool right_symm() {
-  return matrix_matrix_product_shaped<A, B>() &&
+  return compatible_matrix_matrix_product<A, B>() &&
          linear_algebra::concept::general_matrix<A>() &&
          linear_algebra::concept::symmetric_matrix<B>();
 }
 
 template <class A, class B, class C>
 constexpr bool right_symm() {
-  return matrix_matrix_product_shaped<A, B, C>() &&
+  return compatible_matrix_matrix_product<A, B, C>() &&
          linear_algebra::concept::general_matrix<A>() &&
          linear_algebra::concept::symmetric_matrix<B>() &&
          linear_algebra::concept::general_matrix<C>();
@@ -224,14 +228,14 @@ constexpr bool symm() {
 //------------------------------------------------------------------------------
 template <class A, class X>
 constexpr bool symv() {
-  return matrix_vector_product_shaped<A, X>() &&
+  return compatible_matrix_vector_product<A, X>() &&
          linear_algebra::concept::symmetric_matrix<A>() &&
          linear_algebra::concept::column_vector<X>();
 }
 
 template <class A, class X, class Y>
 constexpr bool symv() {
-  return matrix_vector_product_shaped<A, X, Y>() &&
+  return compatible_matrix_vector_product<A, X, Y>() &&
          linear_algebra::concept::symmetric_matrix<A>() &&
          linear_algebra::concept::column_vector<X>() &&
          linear_algebra::concept::column_vector<Y>();
@@ -242,7 +246,7 @@ constexpr bool symv() {
 //------------------------------------------------------------------------------
 template <class A, class B>
 constexpr bool left_trsm() {
-  return matrix_matrix_product_shaped<A, B, B>() &&
+  return compatible_matrix_matrix_product<A, B, B>() &&
          linear_algebra::concept::weak_triangular_matrix<A>() &&
          linear_algebra::concept::general_matrix<B>() &&
          !linear_algebra::concept::column_vector<B>();
@@ -253,7 +257,7 @@ constexpr bool left_trsm() {
 //------------------------------------------------------------------------------
 template <class A, class B>
 constexpr bool right_trsm() {
-  return matrix_matrix_product_shaped<B, A, B>() &&
+  return compatible_matrix_matrix_product<B, A, B>() &&
          linear_algebra::concept::weak_triangular_matrix<A>() &&
          linear_algebra::concept::general_matrix<B>();
 }
@@ -271,7 +275,7 @@ constexpr bool trsm() {
 //------------------------------------------------------------------------------
 template <class A, class X>
 constexpr bool trsv() {
-  return matrix_matrix_product_shaped<A, X, X>() &&
+  return compatible_matrix_matrix_product<A, X, X>() &&
          linear_algebra::concept::weak_triangular_matrix<A>() &&
          linear_algebra::concept::column_vector<X>();
 }

@@ -213,19 +213,21 @@ constexpr bool symmetric_matrix() {
 }
 
 //------------------------------------------------------------------------------
-// weak_symmetric_matrix
+// hermitian_matrix
 //------------------------------------------------------------------------------
 namespace DETAIL_NS {
-struct WeakSymmetricMatrix : Concept {
+struct StrictHermitianMatrix : Concept {
   template <class T>
-  auto require(T&& x) -> list<
-      weak_matrix<T>(), structure::concept::symmetric<typename T::structure>()>;
+  auto require(T&& a) -> list<
+      matrix<T>(), structure::concept::hermitian<typename T::structure>()>;
 };
 }
 
 template <class T>
-constexpr bool weak_symmetric_matrix() {
-  return weak_matrix<T>() && models<DETAIL_NS::WeakSymmetricMatrix, T>();
+constexpr bool hermitian_matrix() {
+  return models<DETAIL_NS::StrictHermitianMatrix, T>() ||
+         (numeric_array::concept::real_numeric_array<T>() &&
+          symmetric_matrix<T>());
 }
 
 //------------------------------------------------------------------------------
@@ -306,21 +308,38 @@ constexpr bool matrix_expression() {
 }
 
 //------------------------------------------------------------------------------
+// standard_numeric_valued
+//------------------------------------------------------------------------------
+namespace DETAIL_NS {
+struct StandardNumericValued : Concept {
+  template <class T>
+  auto require(T&& a)
+      -> list<execution_context::concept::standard_numeric_scalar<
+          uncvref_t<decltype(*a.data())>>()>;
+};
+}
+
+template <class T>
+constexpr bool standard_numeric_valued() {
+  return models<DETAIL_NS::StandardNumericValued, T>();
+}
+
+//------------------------------------------------------------------------------
 // like_valued
 //------------------------------------------------------------------------------
 namespace DETAIL_NS {
 struct LikeValued : Concept {
-  template<class AFirst, class... ARest>
-  auto require(AFirst&& a_first, ARest&&... a_rest) -> list<
-    and_c<same<uncvref_t<decltype(a_first.data())>,
-      uncvref_t<decltype(a_rest.data())>>()...>()
-  >;
+  template <class AFirst, class... ARest>
+  auto require(AFirst&& a_first, ARest&&... a_rest)
+      -> list<and_c<same<uncvref_t<decltype(a_first.data())>,
+                         uncvref_t<decltype(a_rest.data())>>()...>()>;
 };
 }
 
-template<class... AX>
+template <class... AX>
 constexpr bool like_valued() {
-  return models<DETAIL_NS::LikeValued, AX...>();
+  return true;
+  // return models<DETAIL_NS::LikeValued, AX...>();
 }
 }
 }

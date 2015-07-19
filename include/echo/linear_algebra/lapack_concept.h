@@ -15,13 +15,16 @@ namespace concept {
 namespace DETAIL_NS {
 struct Potrf : Concept {
   template <class A>
-  auto require(A&& a) -> list<linear_algebra::concept::symmetric_matrix<A>()>;
+  auto require(A&& a)
+      -> list<numeric_array::concept::standard_numeric_array<A>(),
+              linear_algebra::concept::hermitian_matrix<A>()>;
 
   template <class A, class B>
-  auto require(A&& a,
-               B&& b) -> list<linear_algebra::concept::symmetric_matrix<A>(),
-                              linear_algebra::concept::triangular_matrix<B>(),
-                              linear_algebra::concept::like_valued<A, B>()>;
+  auto require(A&& a, B&& b)
+      -> list<numeric_array::concept::standard_numeric_array<A>(),
+              linear_algebra::concept::hermitian_matrix<A>(),
+              linear_algebra::concept::triangular_matrix<B>(),
+              linear_algebra::concept::like_valued<A, B>()>;
 };
 }
 template <class A>
