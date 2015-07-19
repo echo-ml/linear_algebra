@@ -4,6 +4,7 @@
 #include <echo/linear_algebra/matrix_traits.h>
 #include <echo/linear_algebra/utility.h>
 #include <echo/execution_context.h>
+#include <echo/contract.h>
 #include <cassert>
 
 namespace echo {
@@ -22,21 +23,15 @@ auto emplace_product(const ExecutionContext& execution_context,
                      numeric_array_traits::value_type<A> alpha, const A& a,
                      const B& b, numeric_array_traits::value_type<A> beta,
                      C&& c) {
-  auto a_m = get_extent<0>(a);
+  CONTRACT_EXPECT { CONTRACT_ASSERT(is_product_shaped(a, b, c)); };
   auto a_n = get_extent<1>(a);
   auto lda = get_leading_dimension(a);
 
-  auto b_m = get_extent<0>(b);
-  auto b_n = get_extent<1>(b);
   auto ldb = get_leading_dimension(b);
 
   auto c_m = get_extent<0>(c);
   auto c_n = get_extent<1>(c);
   auto ldc = get_leading_dimension(c);
-
-  assert(a_m == c_m);
-  assert(a_n == b_m);
-  assert(b_n == c_n);
 
   execution_context.gemm(matrix_traits::operation<A>(),
                          matrix_traits::operation<B>(), c_m, c_n, a_n, alpha,
@@ -55,18 +50,14 @@ auto emplace_product(const ExecutionContext& execution_context,
                      numeric_array_traits::value_type<A> alpha, const A& a,
                      const X& x, numeric_array_traits::value_type<A> beta,
                      Y&& y) {
+  CONTRACT_EXPECT { CONTRACT_ASSERT(is_product_shaped(a, x, y)); };
   auto a_m = get_extent<0>(a);
   auto a_n = get_extent<1>(a);
   auto lda = get_leading_dimension(a);
 
-  auto x_m = get_extent<0>(x);
   auto stride_x = get_stride<0>(x);
 
-  auto y_m = get_extent<0>(y);
   auto stride_y = get_stride<0>(y);
-
-  assert(a_m == y_m);
-  assert(a_n == x_m);
 
   execution_context.gemv(matrix_traits::operation<A>(), a_m, a_n, alpha,
                          a.const_data(), lda, x.const_data(), stride_x, beta,
@@ -84,20 +75,14 @@ auto emplace_product(const ExecutionContext& execution_context,
                      numeric_array_traits::value_type<A> alpha, const A& a,
                      const B& b, numeric_array_traits::value_type<A> beta,
                      C&& c) {
+  CONTRACT_EXPECT { CONTRACT_ASSERT(is_product_shaped(a, b, c)); };
   auto a_m = get_extent<0>(a);
   auto lda = get_leading_dimension(a);
 
-  auto b_m = get_extent<0>(b);
   auto b_n = get_extent<1>(b);
   auto ldb = get_leading_dimension(b);
 
-  auto c_m = get_extent<0>(c);
-  auto c_n = get_extent<1>(c);
   auto ldc = get_leading_dimension(c);
-
-  assert(a_m == c_m);
-  assert(a_m == b_m);
-  assert(b_n == c_n);
 
   execution_context.symm(execution_context::matrix_side_t::left,
                          A::structure::storage_uplo, a_m, b_n, alpha,
@@ -115,20 +100,14 @@ auto emplace_product(const ExecutionContext& execution_context,
                      numeric_array_traits::value_type<A> alpha, const A& a,
                      const B& b, numeric_array_traits::value_type<A> beta,
                      C&& c) {
+  CONTRACT_EXPECT { CONTRACT_ASSERT(is_product_shaped(a, b, c)); };
   auto a_m = get_extent<0>(a);
   auto lda = get_leading_dimension(a);
 
-  auto b_m = get_extent<0>(b);
   auto b_n = get_extent<1>(b);
   auto ldb = get_leading_dimension(b);
 
-  auto c_m = get_extent<0>(c);
-  auto c_n = get_extent<1>(c);
   auto ldc = get_leading_dimension(c);
-
-  assert(a_m == c_m);
-  assert(a_m == b_m);
-  assert(b_n == c_n);
 
   execution_context.symm(execution_context::matrix_side_t::right,
                          B::structure::storage_uplo, a_m, b_n, alpha,
@@ -147,17 +126,13 @@ auto emplace_product(const ExecutionContext& execution_context,
                      numeric_array_traits::value_type<A> alpha, const A& a,
                      const X& x, numeric_array_traits::value_type<A> beta,
                      Y&& y) {
+  CONTRACT_EXPECT { CONTRACT_ASSERT(is_product_shaped(a, x, y)); };
   auto a_m = get_extent<0>(a);
   auto lda = get_leading_dimension(a);
 
-  auto x_m = get_extent<0>(x);
   auto incx = get_stride<0>(x);
 
-  auto y_m = get_extent<0>(y);
   auto incy = get_stride<0>(y);
-
-  assert(a_m == y_m);
-  assert(a_m == x_m);
 
   execution_context.symv(A::structure::storage_uplo, a_m, alpha, a.const_data(),
                          lda, x.const_data(), incx, beta, y.data(), incy);
@@ -172,6 +147,7 @@ template <class ExecutionContext, class A, class B, class C,
 auto emplace_product(const ExecutionContext& execution_context,
                      numeric_array_traits::value_type<A> alpha, const A& a,
                      const B& b, C&& c) {
+  CONTRACT_EXPECT { CONTRACT_ASSERT(is_product_shaped(a, b, c)); };
   return emplace_product(execution_context, alpha, a, b, 0, c);
 }
 
@@ -183,6 +159,7 @@ template <class ExecutionContext, class A, class B, class C,
 auto emplace_product(const ExecutionContext& execution_context, const A& a,
                      const B& b, numeric_array_traits::value_type<A> beta,
                      C&& c) {
+  CONTRACT_EXPECT { CONTRACT_ASSERT(is_product_shaped(a, b, c)); };
   return emplace_product(execution_context, 1, a, b, beta, c);
 }
 
@@ -193,6 +170,7 @@ template <class ExecutionContext, class A, class B, class C,
               linear_algebra::concept::modifiable_matrix_forward<C>())>
 auto emplace_product(const ExecutionContext& execution_context, const A& a,
                      const B& b, C&& c) {
+  CONTRACT_EXPECT { CONTRACT_ASSERT(is_product_shaped(a, b, c)); };
   return emplace_product(execution_context, 1, a, b, 0, c);
 }
 
@@ -209,6 +187,7 @@ template <
 auto product(const ExecutionContext& execution_context,
              numeric_array_traits::value_type<A> alpha, const A& a, const B& b,
              numeric_array_traits::value_type<A> beta, const C& c) {
+  CONTRACT_EXPECT { CONTRACT_ASSERT(is_product_shaped(a, b, c)); };
   using Scalar = numeric_array_traits::value_type<A>;
   using Structure = numeric_array_traits::structure<C>;
   auto c_shape = make_shape(get_extent<0>(c), get_extent<1>(c));
@@ -229,6 +208,7 @@ template <
         blas::concept::product<A, B, C>())>
 auto product(const ExecutionContext& execution_context, const A& a, const B& b,
              numeric_array_traits::value_type<A> beta, const C& c) {
+  CONTRACT_EXPECT { CONTRACT_ASSERT(is_product_shaped(a, b, c)); };
   return product(execution_context, 1, a, b, beta, c);
 }
 
@@ -241,6 +221,7 @@ template <
 auto product(const ExecutionContext& execution_context,
              numeric_array_traits::value_type<A> alpha, const A& a,
              const B& b) {
+  CONTRACT_EXPECT { CONTRACT_ASSERT(is_product_shaped(a, b)); };
   using Scalar = numeric_array_traits::value_type<A>;
   using Structure = structure::product<numeric_array_traits::structure<A>,
                                        numeric_array_traits::structure<B>>;
@@ -260,6 +241,7 @@ template <
         blas::concept::product<A, B>())>
 auto product(const ExecutionContext& execution_context, const A& a,
              const B& b) {
+  CONTRACT_EXPECT { CONTRACT_ASSERT(is_product_shaped(a, b)); };
   return product(execution_context, 1, a, b);
 }
 }

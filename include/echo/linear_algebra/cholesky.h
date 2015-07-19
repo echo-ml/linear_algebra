@@ -45,6 +45,7 @@ template <class ExecutionContext, class A, class B,
 auto emplace_cholesky_factorize(const ExecutionContext& execution_context,
                                 numeric_array_traits::value_type<A> alpha,
                                 const A& a, B&& b) {
+  CONTRACT_EXPECT { CONTRACT_ASSERT(get_extent<0>(a) == get_extent<0>(b)); };
   constexpr auto a_storage_uplo =
       numeric_array_traits::structure<A>::storage_uplo;
   auto a_hermitian_view =
@@ -69,6 +70,7 @@ template <class ExecutionContext, class A, class B,
               concept::modifiable_matrix_forward<B>())>
 auto emplace_cholesky_factorize(const ExecutionContext& execution_context,
                                 const A& a, B&& b) {
+  CONTRACT_EXPECT { CONTRACT_ASSERT(get_extent<0>(a) == get_extent<0>(b)); };
   return emplace_cholesky_factorize(execution_context, 1, a, b);
 }
 }

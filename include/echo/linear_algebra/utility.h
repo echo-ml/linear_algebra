@@ -19,6 +19,23 @@ template <class A, CONCEPT_REQUIRES(concept::operated_matrix<A>())>
 auto get_leading_dimension(const A& a) {
   return get_stride<0>(a);
 }
+
+//------------------------------------------------------------------------------
+// is_product_shaped
+//------------------------------------------------------------------------------
+template <class A, class B, CONCEPT_REQUIRES(concept::weak_matrix<A>() &&
+                                             concept::weak_matrix<B>())>
+bool is_product_shaped(const A& a, const B& b) {
+  return get_extent<1>(a) == get_extent<0>(b);
+}
+
+template<class A, class B, class C, CONCEPT_REQUIRES(concept::weak_matrix<A>() &&
+  concept::weak_matrix<B>() && concept::weak_matrix<C>())>
+bool is_product_shaped(const A& a, const B& b, const C& c) {
+  return is_product_shaped(a, b) && get_extent<0>(a) == get_extent<0>(c) &&
+         get_extent<1>(b) == get_extent<1>(c);
+}
+
 }
 
 //------------------------------------------------------------------------------
