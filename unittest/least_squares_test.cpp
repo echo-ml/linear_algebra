@@ -41,4 +41,10 @@ TEST_CASE("least_squares") {
     ARRAY_EQUAL(
         *x1, {{-0.45, 0.25}, {-0.85, -0.90}, {0.71, 0.63}, {0.13, 0.14}}, 0.01);
   }
+
+  SECTION("compute_least_squares") {
+    auto x1 = compute_least_squares(executer, a1, b);
+    ARRAY_EQUAL(
+        x1, {{-0.45, 0.25}, {-0.85, -0.90}, {0.71, 0.63}, {0.13, 0.14}}, 0.01);
+  }
 }

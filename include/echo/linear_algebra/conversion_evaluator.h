@@ -2,6 +2,7 @@
 
 #include <echo/linear_algebra/structure.h>
 #include <echo/numeric_array.h>
+#include <echo/contract.h>
 
 namespace echo {
 namespace linear_algebra {
@@ -15,6 +16,10 @@ class UpperSymmetricToLowerSymmetricEvaluator {
   UpperSymmetricToLowerSymmetricEvaluator(const Evaluator& evaluator)
       : _evaluator(evaluator) {}
   decltype(auto) operator()(index_t i, index_t m, index_t j, index_t n) const {
+    CONTRACT_EXPECT {
+      CONTRACT_ASSERT(numeric_array::valid_evaluation(i, m, j, n));
+      CONTRACT_ASSERT(m == n);
+    };
     return _evaluator(j, n, i, m);
   }
 
@@ -31,6 +36,10 @@ class LowerSymmetricToGeneralEvaluator {
   LowerSymmetricToGeneralEvaluator(const Evaluator& evaluator)
       : _evaluator(evaluator) {}
   decltype(auto) operator()(index_t i, index_t m, index_t j, index_t n) const {
+    CONTRACT_EXPECT {
+      CONTRACT_ASSERT(numeric_array::valid_evaluation(i, m, j, n));
+      CONTRACT_ASSERT(m == n);
+    };
     return _evaluator(std::max(i, j), m, std::min(i, j), m);
   }
 
@@ -47,6 +56,10 @@ class UpperSymmetricToGeneralEvaluator {
   UpperSymmetricToGeneralEvaluator(const Evaluator& evaluator)
       : _evaluator(evaluator) {}
   decltype(auto) operator()(index_t i, index_t m, index_t j, index_t n) const {
+    CONTRACT_EXPECT {
+      CONTRACT_ASSERT(numeric_array::valid_evaluation(i, m, j, n));
+      CONTRACT_ASSERT(m == n);
+    };
     return _evaluator(std::min(i, j), m, std::max(i, j), m);
   }
 
@@ -63,6 +76,10 @@ class LowerTriangularToGeneralEvaluator {
   LowerTriangularToGeneralEvaluator(const Evaluator& evaluator)
       : _evaluator(evaluator) {}
   auto operator()(index_t i, index_t m, index_t j, index_t n) const {
+    CONTRACT_EXPECT {
+      CONTRACT_ASSERT(numeric_array::valid_evaluation(i, m, j, n));
+      CONTRACT_ASSERT(m == n);
+    };
     return (i < j) ? 0 : _evaluator(i, m, j, n);
   }
 
@@ -79,6 +96,10 @@ class UpperTriangularToGeneralEvaluator {
   UpperTriangularToGeneralEvaluator(const Evaluator& evaluator)
       : _evaluator(evaluator) {}
   auto operator()(index_t i, index_t m, index_t j, index_t n) const {
+    CONTRACT_EXPECT {
+      CONTRACT_ASSERT(numeric_array::valid_evaluation(i, m, j, n));
+      CONTRACT_ASSERT(m == n);
+    };
     return (i > j) ? 0 : _evaluator(i, m, j, n);
   }
 

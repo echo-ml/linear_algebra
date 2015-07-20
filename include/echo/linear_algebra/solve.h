@@ -17,7 +17,8 @@ template <class ExecutionContext, class A, class B,
               blas::concept::trsm<A, uncvref_t<B>>() &&
               linear_algebra::concept::modifiable_matrix_forward<B>())>
 auto emplace_left_solve(const ExecutionContext& execution_context, const A& a,
-                        numeric_array_traits::value_type<A> alpha, B&& b) {
+                        numeric_array_traits::value_type<uncvref_t<B>> alpha,
+                        B&& b) {
   auto a_m = get_extent<0>(a);
   auto lda = get_leading_dimension(a);
 
@@ -86,7 +87,7 @@ template <
         execution_context::concept::allocation_backend<ExecutionContext>() &&
         blas::concept::left_trsm<A, B>())>
 auto left_solve(const ExecutionContext& execution_context, const A& a,
-                numeric_array_traits::value_type<A> alpha, const B& b) {
+                numeric_array_traits::value_type<B> alpha, const B& b) {
   using Scalar = numeric_array_traits::value_type<B>;
   using Structure = numeric_array_traits::structure<B>;
 

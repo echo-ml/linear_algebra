@@ -1,6 +1,7 @@
 #pragma once
 
 #include <echo/numeric_array.h>
+#include <echo/contract.h>
 
 namespace echo {
 namespace linear_algebra {
@@ -12,7 +13,11 @@ template <class Evaluator>
 class DiagonalMatrixEvaluator {
  public:
   DiagonalMatrixEvaluator(const Evaluator& evaluator) : _evaluator(evaluator) {}
-  decltype(auto) operator()(index_t i, index_t, index_t j, index_t) const {
+  decltype(auto) operator()(index_t i, index_t m, index_t j, index_t n) const {
+    CONTRACT_EXPECT {
+      CONTRACT_ASSERT(numeric_array::valid_evaluation(i, m, j, n));
+      CONTRACT_ASSERT(m == n);
+    };
     return (i == j) * _evaluator(i);
   }
 

@@ -2,6 +2,7 @@
 
 #include <echo/linear_algebra/operation.h>
 #include <echo/numeric_array.h>
+#include <echo/contract.h>
 
 namespace echo {
 namespace linear_algebra {
@@ -18,6 +19,10 @@ class OperationEvaluator<Evaluator, matrix_operation_t::transpose> {
   OperationEvaluator(const Evaluator& evaluator) : _evaluator(evaluator) {}
   decltype(auto) operator()(index_t i, index_t num_rows, index_t j,
                             index_t num_columns) const {
+    CONTRACT_EXPECT {
+      CONTRACT_ASSERT(
+          numeric_array::valid_evaluation(i, num_rows, j, num_columns));
+    };
     return _evaluator(j, num_columns, i, num_rows);
   }
 
