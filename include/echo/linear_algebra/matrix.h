@@ -13,6 +13,22 @@ namespace echo {
 namespace linear_algebra {
 
 //------------------------------------------------------------------------------
+// get_num_rows
+//------------------------------------------------------------------------------
+template <class Matrix, CONCEPT_REQUIRES(concept::weak_matrix<Matrix>())>
+auto get_num_rows(const Matrix& matrix) {
+  return get_extent<0>(matrix);
+}
+
+//------------------------------------------------------------------------------
+// get_num_columns
+//------------------------------------------------------------------------------
+template <class Matrix, CONCEPT_REQUIRES(concept::weak_matrix<Matrix>())>
+auto get_num_columns(const Matrix& matrix) {
+  return get_extent<1>(matrix);
+}
+
+//------------------------------------------------------------------------------
 // matrix_type
 //------------------------------------------------------------------------------
 namespace DETAIL_NS {
@@ -37,8 +53,7 @@ template <class Scalar, class Structure, class Extent1, class Extent2,
 auto matrix_type()
     -> NumericArray<Scalar, Shape<Extent1, Extent2>, Structure, MemoryBackend>;
 
-template <class Scalar, class Structure,
-          class MemoryBackend,
+template <class Scalar, class Structure, class MemoryBackend,
           CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
                            execution_context::concept::structure<Structure>() &&
                            memory::concept::memory_backend<MemoryBackend>())>
@@ -65,8 +80,7 @@ template <class Scalar, class Structure, class Extent,
 auto matrix_type()
     -> NumericArray<Scalar, Shape<Extent, Extent>, Structure, MemoryBackend>;
 
-template <class Scalar, class Structure,
-          class MemoryBackend,
+template <class Scalar, class Structure, class MemoryBackend,
           CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
                            execution_context::concept::structure<Structure>() &&
                            structure::concept::square<Structure>() &&

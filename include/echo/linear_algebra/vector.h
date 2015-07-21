@@ -15,7 +15,7 @@ namespace linear_algebra {
 // vector_type
 //------------------------------------------------------------------------------
 namespace DETAIL_NS {
-template <class Scalar, class Structure, class Shape,
+template <class Scalar, class Structure, class Shape = Shape<index_t>,
           class MemoryBackend = memory::SimdAllocator<Scalar>,
           CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
                            execution_context::concept::structure<Structure>() &&
@@ -23,6 +23,15 @@ template <class Scalar, class Structure, class Shape,
                            k_array::concept::shape_<1, Shape>() &&
                            memory::concept::memory_backend<MemoryBackend>())>
 auto vector_type() -> NumericArray<Scalar, Shape, Structure, MemoryBackend>;
+
+// template <class Scalar, class Structure, class Shape = Shape<index_t>,
+//           class MemoryBackend = memory::SimdAllocator<Scalar>,
+//           CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
+//                            execution_context::concept::structure<Structure>() &&
+//                            k_array::concept::contiguous_shape<Shape>() &&
+//                            k_array::concept::shape_<1, Shape>() &&
+//                            memory::concept::memory_backend<MemoryBackend>())>
+// auto vector_type() -> NumericArray<Scalar, Shape, Structure, MemoryBackend>;
 
 template <class Scalar, class Structure, class Extent,
           class MemoryBackend = memory::SimdAllocator<Scalar>,
@@ -38,7 +47,7 @@ auto vector_type()
 // row_vector_type
 //------------------------------------------------------------------------------
 namespace DETAIL_NS {
-template <class Scalar, class Shape,
+template <class Scalar, class Shape = Shape<StaticIndex<1>, index_t>,
           class MemoryBackend = memory::SimdAllocator<Scalar>,
           CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
                            k_array::concept::contiguous_shape<Shape>() &&
@@ -63,7 +72,7 @@ auto row_vector_type()
 // column_vector_type
 //------------------------------------------------------------------------------
 namespace DETAIL_NS {
-template <class Scalar, class Shape,
+template <class Scalar, class Shape = Shape<index_t, StaticIndex<1>>,
           class MemoryBackend = memory::SimdAllocator<Scalar>,
           CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
                            k_array::concept::contiguous_shape<Shape>() &&
