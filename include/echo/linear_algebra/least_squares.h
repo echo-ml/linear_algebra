@@ -48,13 +48,6 @@ auto emplace_compute_least_squares(const ExecutionContext& execution_context,
 }
 
 //------------------------------------------------------------------------------
-// LeastSquaresRankError
-//------------------------------------------------------------------------------
-struct LeastSquaresRankError : virtual std::runtime_error {
-  LeastSquaresRankError() : std::runtime_error("LeastSquaresRankError") {}
-};
-
-//------------------------------------------------------------------------------
 // compute_least_squares
 //------------------------------------------------------------------------------
 template <
@@ -87,15 +80,19 @@ auto compute_least_squares(const ExecutionContext& execution_context,
   auto solution =
       emplace_compute_least_squares(execution_context, a_copy, b_copy);
 
-  if (!solution) throw LeastSquaresRankError();
-
   using Solution = uncvref_t<decltype(*solution)>;
   auto result_shape = make_shape(get_dimensionality(*solution));
 
-  NumericArray<Scalar, decltype(result_shape), typename Solution::structure,
-               decltype(allocator)> result(result_shape, allocator);
+  using ResultMatrix =
+      NumericArray<Scalar, decltype(result_shape), typename Solution::structure,
+                   decltype(allocator)>;
 
-  copy(execution_context, *solution, result);
+  boost::optional<ResultMatrix> result;
+  if (!solution) return result;
+
+  result.emplace(result_shape, allocator);
+
+  copy(execution_context, *solution, *result);
 
   return result;
 }
