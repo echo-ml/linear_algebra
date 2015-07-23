@@ -37,6 +37,23 @@ constexpr bool compatible_product_shapes() {
 }
 
 //------------------------------------------------------------------------------
+// compatible_rank_update
+//------------------------------------------------------------------------------
+namespace DETAIL_NS {
+struct CompatibleRankUpdateShapes : Concept {
+  template<class A, class C>
+  auto require(A&& a, C&& c) -> list<
+    same<decltype(get_extent<0>(a)), decltype(get_extent<0>(c))>()
+  >;
+};
+}
+
+template<class A, class C>
+constexpr bool compatible_rank_update_shapes() {
+  return models<DETAIL_NS::CompatibleRankUpdateShapes, A, C>();
+}
+
+//------------------------------------------------------------------------------
 // matrix_strided
 //------------------------------------------------------------------------------
 namespace DETAIL_NS {
