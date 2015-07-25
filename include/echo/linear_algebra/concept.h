@@ -48,6 +48,22 @@ constexpr bool matrix() {
 }
 
 //------------------------------------------------------------------------------
+// square_compatible_matrix
+//------------------------------------------------------------------------------
+namespace DETAIL_NS {
+struct SquareCompatibleMatrix : Concept {
+  template <class T>
+  auto require(T&& x)
+      -> list<matrix<T>(), square_compatible_shape<uncvref_t<decltype(x.shape())>>()>;
+};
+}
+
+template <class T>
+constexpr bool square_compatible_matrix() {
+  return models<DETAIL_NS::SquareCompatibleMatrix, T>();
+}
+
+//------------------------------------------------------------------------------
 // modifiable_matrix_forward
 //------------------------------------------------------------------------------
 namespace DETAIL_NS {

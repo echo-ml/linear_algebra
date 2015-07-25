@@ -42,5 +42,35 @@ auto get_column_vector(index_t i, A&& a) {
   CONTRACT_EXPECT { CONTRACT_ASSERT(0 <= i && i < get_num_columns(a)); };
   return make_numeric_subarray(a, slice::all, slice::counted_range(i, 1_index));
 }
+
+//------------------------------------------------------------------------------
+// get_diagonal
+//------------------------------------------------------------------------------
+template <class A,
+          CONCEPT_REQUIRES(concept::square_compatible_matrix<uncvref_t<A>>())>
+auto get_diagonal(A&& a) {
+  CONTRACT_EXPECT { CONTRACT_ASSERT(get_extent<0>(a) == get_extent<1>(a)); };
+  return make_numeric_array_view<
+      structure::general,
+      numeric_array_traits::memory_backend_tag<uncvref_t<A>>>(
+      a.data(),
+      make_subshape(make_dimensionality(get_extent<0>(a)),
+                    make_strides(get_stride<0>(a) + get_stride<1>(a))));
+}
+
+//------------------------------------------------------------------------------
+// get_diagonal_vector
+//------------------------------------------------------------------------------
+template <class A,
+          CONCEPT_REQUIRES(concept::square_compatible_matrix<uncvref_t<A>>())>
+auto get_diagonal_vector(A&& a) {
+  CONTRACT_EXPECT { CONTRACT_ASSERT(get_extent<0>(a) == get_extent<1>(a)); };
+  return make_numeric_array_view<
+      structure::diagonal,
+      numeric_array_traits::memory_backend_tag<uncvref_t<A>>>(
+      a.data(),
+      make_subshape(make_dimensionality(get_extent<0>(a)),
+                    make_strides(get_stride<0>(a) + get_stride<1>(a))));
+}
 }
 }
