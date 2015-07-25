@@ -19,14 +19,12 @@ template <class ExecutionContext, class A, class B,
 auto emplace_left_solve(const ExecutionContext& execution_context, const A& a,
                         numeric_array_traits::value_type<uncvref_t<B>> alpha,
                         B&& b) {
+  CONTRACT_EXPECT { CONTRACT_ASSERT(get_extent<0>(a) == get_extent<0>(b)); };
   auto a_m = get_extent<0>(a);
   auto lda = get_leading_dimension(a);
 
-  auto b_m = get_extent<0>(b);
   auto b_n = get_extent<1>(b);
   auto ldb = get_leading_dimension(b);
-
-  assert(a_m == b_m);
 
   constexpr auto operation_a = matrix_traits::operation<A>();
   constexpr auto a_uplo =
@@ -47,13 +45,11 @@ template <class ExecutionContext, class A, class X,
               blas::concept::trsv<A, uncvref_t<X>>())>
 auto emplace_left_solve(const ExecutionContext& execution_context, const A& a,
                         X&& x) {
+  CONTRACT_EXPECT { CONTRACT_ASSERT(get_extent<0>(a) == get_extent<0>(x)); };
   auto a_m = get_extent<0>(a);
   auto lda = get_leading_dimension(a);
 
-  auto x_m = get_extent<0>(x);
   auto incx = get_stride<0>(x);
-
-  assert(a_m == x_m);
 
   constexpr auto operation_a = matrix_traits::operation<A>();
   constexpr auto a_uplo =
@@ -74,6 +70,7 @@ template <class ExecutionContext, class A, class B,
               linear_algebra::concept::modifiable_matrix_forward<B>())>
 auto emplace_left_solve(const ExecutionContext& execution_context, const A& a,
                         B&& b) {
+  CONTRACT_EXPECT { CONTRACT_ASSERT(get_extent<0>(a) == get_extent<0>(b)); };
   return emplace_left_solve(execution_context, a, 1, b);
 }
 
@@ -88,6 +85,7 @@ template <
         blas::concept::left_trsm<A, B>())>
 auto left_solve(const ExecutionContext& execution_context, const A& a,
                 numeric_array_traits::value_type<B> alpha, const B& b) {
+  CONTRACT_EXPECT { CONTRACT_ASSERT(get_extent<0>(a) == get_extent<0>(b)); };
   using Scalar = numeric_array_traits::value_type<B>;
   using Structure = numeric_array_traits::structure<B>;
 
@@ -108,6 +106,7 @@ template <
         blas::concept::trsv<A, B>())>
 auto left_solve(const ExecutionContext& execution_context, const A& a,
                 const B& b) {
+  CONTRACT_EXPECT { CONTRACT_ASSERT(get_extent<0>(a) == get_extent<0>(b)); };
   using Scalar = numeric_array_traits::value_type<B>;
   using Structure = numeric_array_traits::structure<B>;
 
@@ -128,6 +127,7 @@ template <
         blas::concept::left_trsm<A, B>())>
 auto left_solve(const ExecutionContext& execution_context, const A& a,
                 const B& b) {
+  CONTRACT_EXPECT { CONTRACT_ASSERT(get_extent<0>(a) == get_extent<0>(b)); };
   return left_solve(execution_context, a, 1, b);
 }
 }
