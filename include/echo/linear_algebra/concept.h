@@ -146,6 +146,15 @@ constexpr bool vector() {
 }
 
 //------------------------------------------------------------------------------
+// modifiable_vector_forward
+//------------------------------------------------------------------------------
+template<class T>
+constexpr bool modifiable_vector_forward() {
+  return vector<uncvref_t<T>>() &&
+         numeric_array::concept::modifiable_numeric_array_forward<T>();
+}
+
+//------------------------------------------------------------------------------
 // row_vector
 //------------------------------------------------------------------------------
 namespace DETAIL_NS {

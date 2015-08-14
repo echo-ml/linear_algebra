@@ -26,11 +26,11 @@ TEST_CASE("subvector") {
   Matrix<double, ShapeC<3,3>> m2;
   m2 = {{1,2,3}, {4,5,6}, {7,8,9}};
 
-  ARRAY_EQUAL(get_row(1, m1), {4, 5, 6});
-  ARRAY_EQUAL(get_row_vector(1, m1), {{4, 5, 6}});
+  ARRAY_EQUAL(get_row(m1, 1), {4, 5, 6});
+  ARRAY_EQUAL(get_row_vector(m1, 1), {{4, 5, 6}});
 
-  ARRAY_EQUAL(get_column(0, m1), {1, 4});
-  ARRAY_EQUAL(get_column_vector(1, m1), {{2}, {5}});
+  ARRAY_EQUAL(get_column(m1, 0), {1, 4});
+  ARRAY_EQUAL(get_column_vector(m1, 1), {{2}, {5}});
 
   auto d1 = get_diagonal(m2);
   ARRAY_EQUAL(d1, {1, 5, 9});

@@ -203,7 +203,25 @@ struct merge<linear_algebra::structure::matrix_general, T> {
 };
 
 template <>
+struct merge<execution_context::structure::general,
+             linear_algebra::structure::matrix_general> {
+  using type = execution_context::structure::general;
+};
+
+template <>
 struct merge<linear_algebra::structure::matrix_general,
+             execution_context::structure::general> {
+  using type = execution_context::structure::general;
+};
+
+template <>
+struct merge<execution_context::structure::general,
+             linear_algebra::structure::general> {
+  using type = execution_context::structure::general;
+};
+
+template <>
+struct merge<linear_algebra::structure::general,
              execution_context::structure::general> {
   using type = execution_context::structure::general;
 };
