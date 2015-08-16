@@ -125,6 +125,57 @@ template <class Scalar, class... Specifiers>
 using UpperTriangularMatrix =
     decltype(DETAIL_NS::matrix_type<Scalar, structure::upper_triangular,
                                     Specifiers...>());
+
+//------------------------------------------------------------------------------
+// make_matrix
+//------------------------------------------------------------------------------
+template <class Scalar, class Structure, class RowExtent, class ColumnExtent,
+          class Allocator,
+          CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
+                           execution_context::concept::structure<Structure>() &&
+                           k_array::concept::extent<RowExtent>() &&
+                           k_array::concept::extent<ColumnExtent>() &&
+                           memory::concept::memory_backend<Allocator>())>
+auto make_matrix(const Dimensionality<RowExtent, ColumnExtent>& dimensionality,
+                 const Allocator& allocator = Allocator()) {
+  return make_numeric_array<Scalar, Structure>(dimensionality, allocator);
+}
+
+template <class Scalar, class Structure, class RowExtent, class ColumnExtent,
+          class Allocator,
+          CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
+                           execution_context::concept::structure<Structure>() &&
+                           std::is_convertible<RowExtent, index_t>() &&
+                           std::is_convertible<ColumnExtent, index_t>() &&
+                           memory::concept::memory_backend<Allocator>())>
+auto make_matrix(RowExtent num_rows, ColumnExtent num_columns,
+                 const Allocator& allocator = Allocator()) {
+  return make_numeric_array<Scalar, Structure>(
+      make_dimensionality(num_rows, num_columns), allocator);
+}
+
+template <class Scalar, class RowExtent, class ColumnExtent, class Allocator,
+          CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
+                           k_array::concept::extent<RowExtent>() &&
+                           k_array::concept::extent<ColumnExtent>() &&
+                           memory::concept::memory_backend<Allocator>())>
+auto make_matrix(const Dimensionality<RowExtent, ColumnExtent>& dimensionality,
+                 const Allocator& allocator = Allocator()) {
+  return make_numeric_array<Scalar, structure::matrix_general>(dimensionality,
+                                                               allocator);
+}
+
+template <class Scalar, class Structure, class RowExtent, class ColumnExtent,
+          class Allocator,
+          CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
+                           std::is_convertible<RowExtent, index_t>() &&
+                           std::is_convertible<ColumnExtent, index_t>() &&
+                           memory::concept::memory_backend<Allocator>())>
+auto make_matrix(RowExtent num_rows, ColumnExtent num_columns,
+                 const Allocator& allocator = Allocator()) {
+  return make_numeric_array<Scalar, structure::matrix_general>(
+      make_dimensionality(num_rows, num_columns), allocator);
+}
 }
 }
 

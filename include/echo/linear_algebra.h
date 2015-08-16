@@ -28,6 +28,7 @@ using echo::linear_algebra::get_row_vector;
 using echo::linear_algebra::get_column;
 using echo::linear_algebra::get_column_vector;
 
+using echo::linear_algebra::make_matrix;
 using echo::linear_algebra::make_submatrix;
 
 }

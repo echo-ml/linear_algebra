@@ -27,7 +27,8 @@ auto vector_type() -> NumericArray<Scalar, Shape, Structure, MemoryBackend>;
 // template <class Scalar, class Structure, class Shape = Shape<index_t>,
 //           class MemoryBackend = memory::SimdAllocator<Scalar>,
 //           CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
-//                            execution_context::concept::structure<Structure>() &&
+//                            execution_context::concept::structure<Structure>()
+//                            &&
 //                            k_array::concept::contiguous_shape<Shape>() &&
 //                            k_array::concept::shape_<1, Shape>() &&
 //                            memory::concept::memory_backend<MemoryBackend>())>
@@ -119,6 +120,153 @@ using ColumnVector =
 template <class Scalar, class... Specifiers>
 using DiagonalMatrix = decltype(
     DETAIL_NS::vector_type<Scalar, structure::diagonal, Specifiers...>());
+
+//------------------------------------------------------------------------------
+// make_vector
+//------------------------------------------------------------------------------
+template <class Scalar, class Structure, class Extent,
+          class Allocator = memory::SimdAllocator<Scalar>,
+          CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
+                           execution_context::concept::structure<Structure>() &&
+                           std::is_convertible<Extent, index_t>() &&
+                           memory::concept::memory_backend<Allocator>())>
+auto make_vector(Extent extent, const Allocator& allocator = Allocator()) {
+  return make_numeric_array<Scalar, Structure>(make_dimensionality(extent),
+                                               allocator);
+}
+
+template <class Scalar, class Extent,
+          class Allocator = memory::SimdAllocator<Scalar>,
+          CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
+                           std::is_convertible<Extent, index_t>() &&
+                           memory::concept::memory_backend<Allocator>())>
+auto make_vector(Extent extent, const Allocator& allocator = Allocator()) {
+  return make_numeric_array<Scalar, structure::general>(
+      make_dimensionality(extent), allocator);
+}
+
+//------------------------------------------------------------------------------
+// make_row_vector
+//------------------------------------------------------------------------------
+template <class Scalar, class Extent,
+          class Allocator = memory::SimdAllocator<Scalar>,
+          CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
+                           std::is_convertible<Extent, index_t>() &&
+                           memory::concept::memory_backend<Allocator>())>
+auto make_row_vector(Extent extent, const Allocator& allocator = Allocator()) {
+  return make_numeric_array<Scalar, structure::matrix_general>(
+      make_dimensionality(1_index, extent), allocator);
+}
+
+//------------------------------------------------------------------------------
+// make_column_vector
+//------------------------------------------------------------------------------
+template <class Scalar, class Extent,
+          class Allocator = memory::SimdAllocator<Scalar>,
+          CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
+                           std::is_convertible<Extent, index_t>() &&
+                           memory::concept::memory_backend<Allocator>())>
+auto make_column_vector(Extent extent,
+                        const Allocator& allocator = Allocator()) {
+  return make_numeric_array<Scalar, structure::matrix_general>(
+      make_dimensionality(extent, 1_index), allocator);
+}
+
+//------------------------------------------------------------------------------
+// get_vector_stride
+//------------------------------------------------------------------------------
+template <class X, CONCEPT_REQUIRES(concept::vector<X>())>
+auto get_vector_stride(const X& x) {
+  return get_stride<0>(x);
+}
+
+template <class X, CONCEPT_REQUIRES(concept::row_vector<X>())>
+auto get_vector_stride(const X& x) {
+  return get_stride<1>(x);
+}
+
+template <class X, CONCEPT_REQUIRES(concept::column_vector<X>())>
+auto get_vector_stride(const X& x) {
+  return get_stride<0>(x);
+}
+
+//------------------------------------------------------------------------------
+// make_vector_view
+//------------------------------------------------------------------------------
+template <class X, CONCEPT_REQUIRES(concept::vector<uncvref_t<X>>() ||
+                                    concept::row_vector<uncvref_t<X>>() ||
+                                    concept::column_vector<uncvref_t<X>>())>
+auto make_vector_view(X&& x) {
+  return make_numeric_array_view<structure::general>(
+      x.data(), make_subshape(make_dimensionality(get_num_elements(x)),
+                              make_strides(get_vector_stride(x))));
+}
+
+//------------------------------------------------------------------------------
+// make_vector_cview
+//------------------------------------------------------------------------------
+template <class X>
+auto make_vector_cview(X&& x) -> decltype(make_cview(make_vector_view(x))) {
+  return make_cview(make_vector_view(x));
+}
+
+//------------------------------------------------------------------------------
+// make_row_vector_view
+//------------------------------------------------------------------------------
+template <class X, CONCEPT_REQUIRES((concept::vector<uncvref_t<X>>() ||
+                                     concept::row_vector<uncvref_t<X>>() ||
+                                     concept::column_vector<uncvref_t<X>>()))>
+auto make_row_vector_view(X&& x) {
+  return make_numeric_array_view<structure::matrix_general>(
+      x.data(), make_subshape(make_dimensionality(1_index, get_num_elements(x)),
+                              make_strides(1_index, get_vector_stride(x))));
+}
+
+//------------------------------------------------------------------------------
+// make_row_vector_cview
+//------------------------------------------------------------------------------
+template <class X>
+auto make_row_vector_cview(X&& x)
+    -> decltype(make_cview(make_row_vector_view(x))) {
+  return make_cview(make_row_vector_view(x));
+}
+
+//------------------------------------------------------------------------------
+// make_column_vector_view
+//------------------------------------------------------------------------------
+template <class X,
+          CONCEPT_REQUIRES(
+              (concept::vector<uncvref_t<X>>() ||
+               concept::row_vector<uncvref_t<X>>() ||
+               concept::column_vector<uncvref_t<X>>()) &&
+              numeric_array::concept::contiguous_numeric_array<uncvref_t<X>>())>
+auto make_column_vector_view(X&& x) {
+  return make_numeric_array_view<structure::matrix_general>(
+      x.data(), make_shape(make_dimensionality(get_num_elements(x), 1_index)));
+}
+
+template <class X,
+          CONCEPT_REQUIRES((concept::vector<uncvref_t<X>>() ||
+                            concept::row_vector<uncvref_t<X>>() ||
+                            concept::column_vector<uncvref_t<X>>()) &&
+                           !numeric_array::concept::contiguous_numeric_array<
+                               uncvref_t<X>>())>
+auto make_column_vector_view(X&& x) {
+  auto stride = get_vector_stride(x);
+  return make_numeric_array_view<structure::matrix_general>(
+      x.data(),
+      make_subshape(make_dimensionality(get_num_elements(x), 1_index),
+                    make_strides(stride, stride * get_num_elements(x))));
+}
+
+//------------------------------------------------------------------------------
+// make_column_vector_cview
+//------------------------------------------------------------------------------
+template <class X>
+auto make_column_vector_cview(X&& x)
+    -> decltype(make_cview(make_column_vector_view(x))) {
+  return make_cview(make_column_vector_view(x));
+}
 }
 
 //------------------------------------------------------------------------------
