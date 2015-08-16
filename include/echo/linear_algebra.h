@@ -5,6 +5,7 @@
 #include <echo/linear_algebra/subvector.h>
 #include <echo/linear_algebra/submatrix.h>
 #include <echo/linear_algebra/product.h>
+#include <echo/linear_algebra/least_squares.h>
 #include <echo/linear_algebra/solve.h>
 #include <echo/linear_algebra/transpose.h>
 
@@ -31,4 +32,18 @@ using echo::linear_algebra::get_column_vector;
 using echo::linear_algebra::make_matrix;
 using echo::linear_algebra::make_submatrix;
 
+using linear_algebra::make_matrix;
+
+using linear_algebra::make_vector;
+using linear_algebra::make_row_vector;
+using linear_algebra::make_column_vector;
+
+using linear_algebra::make_vector_view;
+using linear_algebra::make_vector_cview;
+
+using linear_algebra::make_row_vector_view;
+using linear_algebra::make_row_vector_cview;
+
+using linear_algebra::make_column_vector_view;
+using linear_algebra::make_column_vector_cview;
 }

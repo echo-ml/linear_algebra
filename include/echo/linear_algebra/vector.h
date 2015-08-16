@@ -180,7 +180,8 @@ auto get_vector_stride(const X& x) {
   return get_stride<0>(x);
 }
 
-template <class X, CONCEPT_REQUIRES(concept::row_vector<X>())>
+template <class X, CONCEPT_REQUIRES(concept::row_vector<X>() &&
+                                    !concept::column_vector<X>())>
 auto get_vector_stride(const X& x) {
   return get_stride<1>(x);
 }
