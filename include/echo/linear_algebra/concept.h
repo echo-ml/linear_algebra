@@ -53,8 +53,8 @@ constexpr bool matrix() {
 namespace DETAIL_NS {
 struct SquareCompatibleMatrix : Concept {
   template <class T>
-  auto require(T&& x)
-      -> list<matrix<T>(), square_compatible_shape<uncvref_t<decltype(x.shape())>>()>;
+  auto require(T&& x) -> list<
+      matrix<T>(), square_compatible_shape<uncvref_t<decltype(x.shape())>>()>;
 };
 }
 
@@ -146,9 +146,18 @@ constexpr bool vector() {
 }
 
 //------------------------------------------------------------------------------
+// general_vector
+//------------------------------------------------------------------------------
+template <class T>
+constexpr bool general_vector() {
+  return vector<T>() &&
+         numeric_array::concept::numeric_array<structure::general, T>();
+}
+
+//------------------------------------------------------------------------------
 // modifiable_vector_forward
 //------------------------------------------------------------------------------
-template<class T>
+template <class T>
 constexpr bool modifiable_vector_forward() {
   return vector<uncvref_t<T>>() &&
          numeric_array::concept::modifiable_numeric_array_forward<T>();
