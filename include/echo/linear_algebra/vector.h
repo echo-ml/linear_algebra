@@ -136,6 +136,25 @@ auto make_vector(Extent extent, const Allocator& allocator = Allocator()) {
 }
 
 //------------------------------------------------------------------------------
+// make_static_vector
+//------------------------------------------------------------------------------
+template <class Scalar, class Structure, class Extent,
+          CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
+                           execution_context::concept::structure<Structure>() &&
+                           k_array::concept::static_extent<Extent>())>
+auto make_static_vector(Extent extent) {
+  return make_static_numeric_array<Scalar, Structure>(make_dimensionality(extent));
+}
+
+template <class Scalar, class Extent,
+          CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
+                           k_array::concept::static_extent<Extent>())>
+auto make_static_vector(Extent extent) {
+  return make_static_numeric_array<Scalar, structure::general>(
+      make_dimensionality(extent));
+}
+
+//------------------------------------------------------------------------------
 // make_row_vector
 //------------------------------------------------------------------------------
 template <class Scalar, class Extent,
@@ -147,6 +166,18 @@ auto make_row_vector(Extent extent, const Allocator& allocator = Allocator()) {
   return make_numeric_array<Scalar, structure::matrix_general>(
       make_dimensionality(1_index, extent), allocator);
 }
+
+//------------------------------------------------------------------------------
+// make_static_row_vector
+//------------------------------------------------------------------------------
+template <class Scalar, class Extent,
+          CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
+                           k_array::concept::static_extent<Extent>())>
+auto make_static_row_vector(Extent extent) {
+  return make_static_numeric_array<Scalar, structure::matrix_general>(
+      make_dimensionality(1_index, extent));
+}
+
 
 //------------------------------------------------------------------------------
 // make_column_vector
@@ -161,6 +192,18 @@ auto make_column_vector(Extent extent,
   return make_numeric_array<Scalar, structure::matrix_general>(
       make_dimensionality(extent, 1_index), allocator);
 }
+
+//------------------------------------------------------------------------------
+// make_static_column_vector
+//------------------------------------------------------------------------------
+template <class Scalar, class Extent,
+          CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
+                           k_array::concept::static_extent<Extent>())>
+auto make_static_column_vector(Extent extent) {
+  return make_static_numeric_array<Scalar, structure::matrix_general>(
+      make_dimensionality(extent, 1_index));
+}
+
 
 //------------------------------------------------------------------------------
 // get_vector_stride

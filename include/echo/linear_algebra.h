@@ -33,10 +33,14 @@ using echo::linear_algebra::make_matrix;
 using echo::linear_algebra::make_submatrix;
 
 using linear_algebra::make_matrix;
+using linear_algebra::make_static_matrix;
 
 using linear_algebra::make_vector;
+using linear_algebra::make_static_vector;
 using linear_algebra::make_row_vector;
+using linear_algebra::make_static_row_vector;
 using linear_algebra::make_column_vector;
+using linear_algebra::make_static_column_vector;
 
 using linear_algebra::make_vector_view;
 using linear_algebra::make_vector_cview;

@@ -42,8 +42,11 @@ TEST_CASE("subvector") {
 TEST_CASE("make_vector") {
   auto d1 = make_vector<double, linear_algebra::structure::diagonal>(3_index);
   auto v1 = make_vector<double>(3_index);
+  auto v2 = make_static_vector<double>(3_index);
   auto r1 = make_row_vector<double>(3);
+  auto r2 = make_static_row_vector<double>(3_index);
   auto c1 = make_column_vector<double>(2_index);
+  auto c2 = make_static_column_vector<double>(2_index);
 
   auto view1 = make_vector_view(v1);
   auto view2 = make_vector_cview(r1);

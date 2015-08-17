@@ -176,6 +176,48 @@ auto make_matrix(RowExtent num_rows, ColumnExtent num_columns,
   return make_numeric_array<Scalar, structure::matrix_general>(
       make_dimensionality(num_rows, num_columns), allocator);
 }
+
+//------------------------------------------------------------------------------
+// make_static_matrix
+//------------------------------------------------------------------------------
+template <class Scalar, class Structure, class RowExtent, class ColumnExtent,
+          CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
+                           execution_context::concept::structure<Structure>() &&
+                           k_array::concept::static_extent<RowExtent>() &&
+                           k_array::concept::static_extent<ColumnExtent>())>
+auto make_static_matrix(
+    const Dimensionality<RowExtent, ColumnExtent>& dimensionality) {
+  return make_static_numeric_array<Scalar, Structure>(dimensionality);
+}
+
+template <class Scalar, class Structure, class RowExtent, class ColumnExtent,
+          CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
+                           execution_context::concept::structure<Structure>() &&
+                           k_array::concept::static_extent<RowExtent>() &&
+                           k_array::concept::static_extent<ColumnExtent>())>
+auto make_static_matrix(RowExtent num_rows, ColumnExtent num_columns) {
+  return make_static_numeric_array<Scalar, Structure>(
+      make_dimensionality(num_rows, num_columns));
+}
+
+template <class Scalar, class RowExtent, class ColumnExtent,
+          CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
+                           k_array::concept::static_extent<RowExtent>() &&
+                           k_array::concept::static_extent<ColumnExtent>())>
+auto make_static_matrix(
+    const Dimensionality<RowExtent, ColumnExtent>& dimensionality) {
+  return make_static_numeric_array<Scalar, structure::matrix_general>(
+      dimensionality);
+}
+
+template <class Scalar, class Structure, class RowExtent, class ColumnExtent,
+          CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
+                           k_array::concept::static_extent<RowExtent>() &&
+                           k_array::concept::static_extent<ColumnExtent>())>
+auto make_static_matrix(RowExtent num_rows, ColumnExtent num_columns) {
+  return make_static_numeric_array<Scalar, structure::matrix_general>(
+      make_dimensionality(num_rows, num_columns));
+}
 }
 }
 
