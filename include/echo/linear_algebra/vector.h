@@ -24,16 +24,6 @@ template <class Scalar, class Structure, class Shape = Shape<index_t>,
                            memory::concept::memory_backend<MemoryBackend>())>
 auto vector_type() -> NumericArray<Scalar, Shape, Structure, MemoryBackend>;
 
-// template <class Scalar, class Structure, class Shape = Shape<index_t>,
-//           class MemoryBackend = memory::SimdAllocator<Scalar>,
-//           CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
-//                            execution_context::concept::structure<Structure>()
-//                            &&
-//                            k_array::concept::contiguous_shape<Shape>() &&
-//                            k_array::concept::shape_<1, Shape>() &&
-//                            memory::concept::memory_backend<MemoryBackend>())>
-// auto vector_type() -> NumericArray<Scalar, Shape, Structure, MemoryBackend>;
-
 template <class Scalar, class Structure, class Extent,
           class MemoryBackend = memory::SimdAllocator<Scalar>,
           CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
@@ -235,23 +225,9 @@ auto make_row_vector_cview(X&& x)
 //------------------------------------------------------------------------------
 // make_column_vector_view
 //------------------------------------------------------------------------------
-template <class X,
-          CONCEPT_REQUIRES(
-              (concept::vector<uncvref_t<X>>() ||
-               concept::row_vector<uncvref_t<X>>() ||
-               concept::column_vector<uncvref_t<X>>()) &&
-              numeric_array::concept::contiguous_numeric_array<uncvref_t<X>>())>
-auto make_column_vector_view(X&& x) {
-  return make_numeric_array_view<structure::matrix_general>(
-      x.data(), make_shape(make_dimensionality(get_num_elements(x), 1_index)));
-}
-
-template <class X,
-          CONCEPT_REQUIRES((concept::vector<uncvref_t<X>>() ||
-                            concept::row_vector<uncvref_t<X>>() ||
-                            concept::column_vector<uncvref_t<X>>()) &&
-                           !numeric_array::concept::contiguous_numeric_array<
-                               uncvref_t<X>>())>
+template <class X, CONCEPT_REQUIRES(concept::vector<uncvref_t<X>>() ||
+                                    concept::row_vector<uncvref_t<X>>() ||
+                                    concept::column_vector<uncvref_t<X>>())>
 auto make_column_vector_view(X&& x) {
   auto stride = get_vector_stride(x);
   return make_numeric_array_view<structure::matrix_general>(
