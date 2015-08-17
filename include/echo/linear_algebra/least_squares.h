@@ -62,26 +62,16 @@ auto compute_least_squares(const ExecutionContext& execution_context,
     CONTRACT_ASSERT(get_extent<0>(a) >= get_extent<1>(a));
     CONTRACT_ASSERT(get_extent<0>(a) == get_extent<0>(b));
   };
-
-  auto a_shape = make_shape(get_dimensionality(a));
-  auto b_shape = make_shape(get_dimensionality(b));
-
-  using Scalar = uncvref_t<decltype(*a.data())>;
-
-  auto allocator = make_aligned_allocator<Scalar>(execution_context);
-  NumericArray<Scalar, decltype(a_shape), typename A::structure,
-               decltype(allocator)> a_copy(a_shape, allocator);
-  NumericArray<Scalar, decltype(b_shape), typename B::structure,
-               decltype(allocator)> b_copy(b_shape, allocator);
-
-  copy(execution_context, a, a_copy);
-  copy(execution_context, b, b_copy);
+  auto a_copy = make_numeric_array(execution_context, a);
+  auto b_copy = make_numeric_array(execution_context, b);
 
   auto solution =
       emplace_compute_least_squares(execution_context, a_copy, b_copy);
 
+  using Scalar = uncvref_t<decltype(*a.data())>;
   using Solution = uncvref_t<decltype(*solution)>;
   auto result_shape = make_shape(get_dimensionality(*solution));
+  auto allocator = make_aligned_allocator<Scalar>(execution_context);
 
   using ResultMatrix =
       NumericArray<Scalar, decltype(result_shape), typename Solution::structure,

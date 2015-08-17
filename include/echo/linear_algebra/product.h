@@ -3,6 +3,7 @@
 #include <echo/linear_algebra/blas_concept.h>
 #include <echo/linear_algebra/matrix_traits.h>
 #include <echo/linear_algebra/utility.h>
+#include <echo/linear_algebra/matrix.h>
 #include <echo/execution_context.h>
 #include <echo/contract.h>
 #include <cassert>
@@ -188,13 +189,7 @@ auto product(const ExecutionContext& execution_context,
              numeric_array_traits::value_type<A> alpha, const A& a, const B& b,
              numeric_array_traits::value_type<A> beta, const C& c) {
   CONTRACT_EXPECT { CONTRACT_ASSERT(is_product_shaped(a, b, c)); };
-  using Scalar = numeric_array_traits::value_type<A>;
-  using Structure = numeric_array_traits::structure<C>;
-  auto c_shape = make_shape(get_extent<0>(c), get_extent<1>(c));
-  auto allocator = make_aligned_allocator<Scalar>(execution_context);
-  NumericArray<Scalar, decltype(c_shape), Structure, decltype(allocator)>
-      result(c_shape, allocator);
-  copy(execution_context, c, result);
+  auto result = make_numeric_array(execution_context, c);
   emplace_product(execution_context, alpha, a, b, beta, result);
   return result;
 }
@@ -225,10 +220,8 @@ auto product(const ExecutionContext& execution_context,
   using Scalar = numeric_array_traits::value_type<A>;
   using Structure = structure::product<numeric_array_traits::structure<A>,
                                        numeric_array_traits::structure<B>>;
-  auto c_shape = make_shape(get_extent<0>(a), get_extent<1>(b));
-  auto allocator = make_aligned_allocator<Scalar>(execution_context);
-  NumericArray<Scalar, decltype(c_shape), Structure, decltype(allocator)>
-      result(c_shape, allocator);
+  auto result = make_matrix<Scalar, Structure>(get_extent<0>(a),
+    get_extent<1>(b), make_aligned_allocator<Scalar>(execution_context));
   emplace_product(execution_context, alpha, a, b, 0, result);
   return result;
 }

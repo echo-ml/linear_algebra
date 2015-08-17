@@ -165,7 +165,7 @@ auto make_matrix(const Dimensionality<RowExtent, ColumnExtent>& dimensionality,
                                                                allocator);
 }
 
-template <class Scalar, class Structure, class RowExtent, class ColumnExtent,
+template <class Scalar, class RowExtent, class ColumnExtent,
           class Allocator,
           CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
                            std::is_convertible<RowExtent, index_t>() &&

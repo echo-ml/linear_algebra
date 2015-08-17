@@ -86,14 +86,7 @@ template <
 auto left_solve(const ExecutionContext& execution_context, const A& a,
                 numeric_array_traits::value_type<B> alpha, const B& b) {
   CONTRACT_EXPECT { CONTRACT_ASSERT(get_extent<0>(a) == get_extent<0>(b)); };
-  using Scalar = numeric_array_traits::value_type<B>;
-  using Structure = numeric_array_traits::structure<B>;
-
-  auto result_shape = make_shape(get_extent<0>(b), get_extent<1>(b));
-  auto allocator = make_aligned_allocator<Scalar>(execution_context);
-  NumericArray<Scalar, decltype(result_shape), Structure, decltype(allocator)>
-      result(result_shape, allocator);
-  copy(execution_context, b, result);
+  auto result = make_numeric_array(execution_context, b);
   emplace_left_solve(execution_context, a, alpha, result);
   return result;
 }
@@ -107,14 +100,7 @@ template <
 auto left_solve(const ExecutionContext& execution_context, const A& a,
                 const B& b) {
   CONTRACT_EXPECT { CONTRACT_ASSERT(get_extent<0>(a) == get_extent<0>(b)); };
-  using Scalar = numeric_array_traits::value_type<B>;
-  using Structure = numeric_array_traits::structure<B>;
-
-  auto b_shape = b.shape();
-  auto allocator = make_aligned_allocator<Scalar>(execution_context);
-  NumericArray<Scalar, decltype(b_shape), Structure, decltype(allocator)>
-      result(b_shape, allocator);
-  copy(execution_context, b, result);
+  auto result = make_numeric_array(execution_context, b);
   emplace_left_solve(execution_context, a, result);
   return result;
 }
