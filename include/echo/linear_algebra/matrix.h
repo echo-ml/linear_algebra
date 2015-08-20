@@ -130,7 +130,7 @@ using UpperTriangularMatrix =
 // make_matrix
 //------------------------------------------------------------------------------
 template <class Scalar, class Structure, class RowExtent, class ColumnExtent,
-          class Allocator,
+          class Allocator = memory::SimdAllocator<Scalar>,
           CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
                            execution_context::concept::structure<Structure>() &&
                            k_array::concept::extent<RowExtent>() &&
@@ -142,7 +142,7 @@ auto make_matrix(const Dimensionality<RowExtent, ColumnExtent>& dimensionality,
 }
 
 template <class Scalar, class Structure, class RowExtent, class ColumnExtent,
-          class Allocator,
+          class Allocator = memory::SimdAllocator<Scalar>,
           CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
                            execution_context::concept::structure<Structure>() &&
                            std::is_convertible<RowExtent, index_t>() &&
@@ -154,7 +154,8 @@ auto make_matrix(RowExtent num_rows, ColumnExtent num_columns,
       make_dimensionality(num_rows, num_columns), allocator);
 }
 
-template <class Scalar, class RowExtent, class ColumnExtent, class Allocator,
+template <class Scalar, class RowExtent, class ColumnExtent,
+          class Allocator = memory::SimdAllocator<Scalar>,
           CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
                            k_array::concept::extent<RowExtent>() &&
                            k_array::concept::extent<ColumnExtent>() &&
@@ -166,7 +167,7 @@ auto make_matrix(const Dimensionality<RowExtent, ColumnExtent>& dimensionality,
 }
 
 template <class Scalar, class RowExtent, class ColumnExtent,
-          class Allocator,
+          class Allocator = memory::SimdAllocator<Scalar>,
           CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
                            std::is_convertible<RowExtent, index_t>() &&
                            std::is_convertible<ColumnExtent, index_t>() &&
