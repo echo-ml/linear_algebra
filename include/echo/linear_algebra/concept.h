@@ -381,8 +381,8 @@ namespace DETAIL_NS {
 struct LikeValued : Concept {
   template <class AFirst, class... ARest>
   auto require(AFirst&& a_first, ARest&&... a_rest)
-      -> list<and_c<same<uncvref_t<decltype(a_first.data())>,
-                         uncvref_t<decltype(a_rest.data())>>()...>()>;
+      -> list<and_c<same<uncvref_t<decltype(*a_first.data())>,
+                         uncvref_t<decltype(*a_rest.data())>>()...>()>;
 };
 }
 

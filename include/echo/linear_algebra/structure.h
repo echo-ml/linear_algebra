@@ -203,6 +203,12 @@ struct merge<linear_algebra::structure::matrix_general, T> {
 };
 
 template <>
+struct merge<linear_algebra::structure::matrix_general,
+             numeric_array::structure::scalar> {
+  using type = linear_algebra::structure::matrix_general;
+};
+
+template <>
 struct merge<execution_context::structure::general,
              linear_algebra::structure::matrix_general> {
   using type = execution_context::structure::general;

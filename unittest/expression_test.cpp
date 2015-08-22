@@ -61,3 +61,8 @@ TEST_CASE("conversions") {
     ARRAY_EQUAL(m2, {{14, 2}, {4, 15}});
   }
 }
+
+TEST_CASE("scalr_expression") {
+  Matrix<double, ShapeC<2,1>> m1;
+  auto expr1 = m1 = 3;
+}
