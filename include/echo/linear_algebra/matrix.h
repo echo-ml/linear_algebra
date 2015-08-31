@@ -97,6 +97,13 @@ using Matrix = decltype(
     DETAIL_NS::matrix_type<Scalar, structure::matrix_general, Specifiers...>());
 
 //------------------------------------------------------------------------------
+// StaticMatrix
+//------------------------------------------------------------------------------
+template <class Scalar, class... Specifiers>
+using StaticMatrix =
+    Matrix<Scalar, Specifiers..., memory::SimdStaticAllocator<Scalar>>;
+
+//------------------------------------------------------------------------------
 // SymmetricMatrix
 //------------------------------------------------------------------------------
 template <class Scalar, class... Specifiers>
@@ -104,11 +111,25 @@ using SymmetricMatrix = decltype(
     DETAIL_NS::matrix_type<Scalar, structure::symmetric, Specifiers...>());
 
 //------------------------------------------------------------------------------
+// StaticSymmetricMatrix
+//------------------------------------------------------------------------------
+template <class Scalar, class... Specifiers>
+using StaticSymmetricMatrix =
+    SymmetricMatrix<Scalar, Specifiers..., memory::SimdStaticAllocator<Scalar>>;
+
+//------------------------------------------------------------------------------
 // HermitianMatrix
 //------------------------------------------------------------------------------
 template <class Scalar, class... Specifiers>
 using HermitianMatrix = decltype(
     DETAIL_NS::matrix_type<Scalar, structure::hermitian, Specifiers...>());
+
+//------------------------------------------------------------------------------
+// StaticHermitianMatrix
+//------------------------------------------------------------------------------
+template <class Scalar, class... Specifiers>
+using StaticHermitianMatrix =
+    HermitianMatrix<Scalar, Specifiers..., memory::SimdStaticAllocator<Scalar>>;
 
 //------------------------------------------------------------------------------
 // LowerTriangularMatrix
@@ -119,12 +140,28 @@ using LowerTriangularMatrix =
                                     Specifiers...>());
 
 //------------------------------------------------------------------------------
+// StaticLowerTriangularMatrix
+//------------------------------------------------------------------------------
+template <class Scalar, class... Specifiers>
+using StaticLowerTriangularMatrix =
+    LowerTriangularMatrix<Scalar, Specifiers...,
+                          memory::SimdStaticAllocator<Scalar>>;
+
+//------------------------------------------------------------------------------
 // UpperTriangularMatrix
 //------------------------------------------------------------------------------
 template <class Scalar, class... Specifiers>
 using UpperTriangularMatrix =
     decltype(DETAIL_NS::matrix_type<Scalar, structure::upper_triangular,
                                     Specifiers...>());
+
+//------------------------------------------------------------------------------
+// StaticUpperTriangularMatrix
+//------------------------------------------------------------------------------
+template <class Scalar, class... Specifiers>
+using StaticUpperTriangularMatrix =
+    UpperTriangularMatrix<Scalar, Specifiers...,
+                          memory::SimdStaticAllocator<Scalar>>;
 
 //------------------------------------------------------------------------------
 // make_matrix

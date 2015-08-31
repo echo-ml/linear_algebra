@@ -92,10 +92,24 @@ using Vector = decltype(
     DETAIL_NS::vector_type<Scalar, structure::general, Specifiers...>());
 
 //------------------------------------------------------------------------------
+// StaticVector
+//------------------------------------------------------------------------------
+template <class Scalar, class... Specifiers>
+using StaticVector =
+    Vector<Scalar, Specifiers..., memory::SimdStaticAllocator<Scalar>>;
+
+//------------------------------------------------------------------------------
 // RowVector
 //------------------------------------------------------------------------------
 template <class Scalar, class... Specifiers>
 using RowVector = decltype(DETAIL_NS::row_vector_type<Scalar, Specifiers...>());
+
+//------------------------------------------------------------------------------
+// StaticRowVector
+//------------------------------------------------------------------------------
+template <class Scalar, class... Specifiers>
+using StaticRowVector =
+    RowVector<Scalar, Specifiers..., memory::SimdStaticAllocator<Scalar>>;
 
 //------------------------------------------------------------------------------
 // ColumnVector
@@ -105,11 +119,25 @@ using ColumnVector =
     decltype(DETAIL_NS::column_vector_type<Scalar, Specifiers...>());
 
 //------------------------------------------------------------------------------
+// StaticColumnVector
+//------------------------------------------------------------------------------
+template <class Scalar, class... Specifiers>
+using StaticColumnVector =
+    ColumnVector<Scalar, Specifiers..., memory::SimdStaticAllocator<Scalar>>;
+
+//------------------------------------------------------------------------------
 // DiagonalMatrix
 //------------------------------------------------------------------------------
 template <class Scalar, class... Specifiers>
 using DiagonalMatrix = decltype(
     DETAIL_NS::vector_type<Scalar, structure::diagonal, Specifiers...>());
+
+//------------------------------------------------------------------------------
+// StaticDiagonalMatrix
+//------------------------------------------------------------------------------
+template <class Scalar, class... Specifiers>
+using StaticDiagonalMatrix =
+    DiagonalMatrix<Scalar, Specifiers..., memory::SimdStaticAllocator<Scalar>>;
 
 //------------------------------------------------------------------------------
 // make_vector

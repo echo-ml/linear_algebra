@@ -16,9 +16,18 @@ using echo::linear_algebra::SymmetricMatrix;
 using echo::linear_algebra::LowerTriangularMatrix;
 using echo::linear_algebra::UpperTriangularMatrix;
 
+using echo::linear_algebra::StaticMatrix;
+using echo::linear_algebra::StaticSymmetricMatrix;
+using echo::linear_algebra::StaticLowerTriangularMatrix;
+using echo::linear_algebra::StaticUpperTriangularMatrix;
+
 using echo::linear_algebra::Vector;
 using echo::linear_algebra::RowVector;
 using echo::linear_algebra::ColumnVector;
+
+using echo::linear_algebra::StaticVector;
+using echo::linear_algebra::StaticRowVector;
+using echo::linear_algebra::StaticColumnVector;
 
 using echo::linear_algebra::get_num_rows;
 using echo::linear_algebra::get_num_columns;
