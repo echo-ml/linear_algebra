@@ -34,21 +34,23 @@ auto emplace_singular_value_decompose(const ExecutionContext& execution_context,
   using Scalar = numeric_array_traits::value_type<uncvref_t<A>>;
   auto m = get_num_rows(a);
   auto n = get_num_columns(a);
+  auto smallest_extent = echo::min(m, n);
 
   auto allocator = make_aligned_allocator<Scalar>(execution_context);
 
-  auto u = make_matrix<Scalar>(m, m, allocator);
-  auto s = make_vector<Scalar>(echo::min(m, n), allocator);
-  auto vt = make_matrix<Scalar>(n, n, allocator);
+  auto s = make_vector<Scalar>(smallest_extent, allocator);
+  auto vt = make_matrix<Scalar>(smallest_extent, n, allocator);
   auto superb = make_vector<Scalar>(echo::min(m, n) - 1_index, allocator);
 
   auto return_code = execution_context.gesvd(
-      execution_context::result_output_mode_t::all,
-      execution_context::result_output_mode_t::all, m, n, a.data(),
-      get_leading_dimension(a), s.data(), u.data(), get_leading_dimension(u),
-      vt.data(), get_leading_dimension(vt), superb.data());
+      execution_context::result_output_mode_t::overwrite,
+      execution_context::result_output_mode_t::subset, m, n, a.data(),
+      get_leading_dimension(a), s.data(), nullptr, index_t(1), vt.data(),
+      get_leading_dimension(vt), superb.data());
   if (return_code != 0) throw SingularValueDecompositionFailure();
-  return std::make_tuple(std::move(u), std::move(s), std::move(vt));
+  auto u_view = make_numeric_subarray(a, slice::all,
+                                      slice::counted_range(0, smallest_extent));
+  return std::make_tuple(u_view, std::move(s), std::move(vt));
 }
 
 //------------------------------------------------------------------------------
@@ -63,7 +65,12 @@ template <
 auto singular_value_decompose(const ExecutionContext& execution_context,
                               const A& a) {
   auto a_copy = make_numeric_array(execution_context, a);
-  return emplace_singular_value_decompose(execution_context, a_copy);
+  auto decomposition =
+      emplace_singular_value_decompose(execution_context, a_copy);
+  return std::make_tuple(
+      make_numeric_array(execution_context, std::get<0>(decomposition)),
+      std::move(std::get<1>(decomposition)),
+      std::move(std::get<2>(decomposition)));
 }
 }
 }
