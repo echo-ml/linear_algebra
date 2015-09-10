@@ -12,11 +12,11 @@ namespace echo {
 namespace linear_algebra {
 
 //------------------------------------------------------------------------------
-// SingularValueDecompositionFailure
+// SingularValueDecompositionError
 //------------------------------------------------------------------------------
-struct SingularValueDecompositionFailure : virtual std::runtime_error {
-  SingularValueDecompositionFailure()
-      : std::runtime_error("SingularValueDecompositionFailure") {}
+struct SingularValueDecompositionError : virtual std::runtime_error {
+  SingularValueDecompositionError()
+      : std::runtime_error("SingularValueDecompositionError") {}
 };
 
 //------------------------------------------------------------------------------
@@ -47,7 +47,7 @@ auto emplace_singular_value_decompose(const ExecutionContext& execution_context,
       execution_context::result_output_mode_t::subset, m, n, a.data(),
       get_leading_dimension(a), s.data(), nullptr, index_t(1), vt.data(),
       get_leading_dimension(vt), superb.data());
-  if (return_code != 0) throw SingularValueDecompositionFailure();
+  if (return_code != 0) throw SingularValueDecompositionError();
   auto u_view = make_numeric_subarray(a, slice::all,
                                       slice::counted_range(0, smallest_extent));
   return std::make_tuple(u_view, std::move(s), std::move(vt));

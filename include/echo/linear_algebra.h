@@ -6,6 +6,7 @@
 #include <echo/linear_algebra/submatrix.h>
 #include <echo/linear_algebra/product.h>
 #include <echo/linear_algebra/least_squares.h>
+#include <echo/linear_algebra/singular_value_decomposition.h>
 #include <echo/linear_algebra/solve.h>
 #include <echo/linear_algebra/transpose.h>
 

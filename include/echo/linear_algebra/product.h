@@ -52,12 +52,11 @@ auto emplace_product(const ExecutionContext& execution_context,
                      const X& x, numeric_array_traits::value_type<A> beta,
                      Y&& y) {
   CONTRACT_EXPECT { CONTRACT_ASSERT(is_product_shaped(a, x, y)); };
-  auto a_m = get_extent<0>(a);
-  auto a_n = get_extent<1>(a);
+  auto a_m = get_underlying_num_rows(a);
+  auto a_n = get_underlying_num_columns(a);
   auto lda = get_leading_dimension(a);
 
   auto stride_x = get_stride<0>(x);
-
   auto stride_y = get_stride<0>(y);
 
   execution_context.gemv(matrix_traits::operation<A>(), a_m, a_n, alpha,

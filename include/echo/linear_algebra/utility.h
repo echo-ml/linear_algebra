@@ -21,6 +21,32 @@ auto get_leading_dimension(const A& a) {
 }
 
 //------------------------------------------------------------------------------
+// get_underlying_num_rows
+//------------------------------------------------------------------------------
+template <class A, CONCEPT_REQUIRES(concept::matrix<A>())>
+auto get_underlying_num_rows(const A& a) {
+  return get_extent<0>(a);
+}
+
+template <class A, CONCEPT_REQUIRES(concept::operated_matrix<A>())>
+auto get_underlying_num_rows(const A& a) {
+  return get_extent<1>(a);
+}
+
+//------------------------------------------------------------------------------
+// get_underlying_num_columns
+//------------------------------------------------------------------------------
+template <class A, CONCEPT_REQUIRES(concept::matrix<A>())>
+auto get_underlying_num_columns(const A& a) {
+  return get_extent<1>(a);
+}
+
+template <class A, CONCEPT_REQUIRES(concept::operated_matrix<A>())>
+auto get_underlying_num_columns(const A& a) {
+  return get_extent<0>(a);
+}
+
+//------------------------------------------------------------------------------
 // is_product_shaped
 //------------------------------------------------------------------------------
 template <class A, class B, CONCEPT_REQUIRES(concept::weak_matrix<A>() &&
@@ -29,13 +55,14 @@ bool is_product_shaped(const A& a, const B& b) {
   return get_extent<1>(a) == get_extent<0>(b);
 }
 
-template<class A, class B, class C, CONCEPT_REQUIRES(concept::weak_matrix<A>() &&
-  concept::weak_matrix<B>() && concept::weak_matrix<C>())>
+template <class A, class B, class C,
+          CONCEPT_REQUIRES(concept::weak_matrix<A>() &&
+                           concept::weak_matrix<B>() &&
+                           concept::weak_matrix<C>())>
 bool is_product_shaped(const A& a, const B& b, const C& c) {
   return is_product_shaped(a, b) && get_extent<0>(a) == get_extent<0>(c) &&
          get_extent<1>(b) == get_extent<1>(c);
 }
-
 }
 
 //------------------------------------------------------------------------------

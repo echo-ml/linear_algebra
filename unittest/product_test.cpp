@@ -22,6 +22,7 @@ TEST_CASE("general product") {
   Matrix<double, ShapeC<4, 2>> m4;
   Matrix<double, ShapeC<2, 2>> m5;
   Matrix<double, ShapeC<3, 1>> v1;
+  Matrix<double, ShapeC<3, 1>> v4;
   m1 = {{0, 2, 4}, {1, 3, 5}};
   m2 = {{1, 4, 7, 10}, {2, 5, 8, 11}, {3, 6, 9, 12}};
   m3 = {{2, 3, 4, 5}, {7, 8, 9, 10}};
