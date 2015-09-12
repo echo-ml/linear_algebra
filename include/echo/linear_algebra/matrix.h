@@ -182,8 +182,8 @@ template <class Scalar, class Structure, class RowExtent, class ColumnExtent,
           class Allocator = memory::SimdAllocator<Scalar>,
           CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
                            execution_context::concept::structure<Structure>() &&
-                           std::is_convertible<RowExtent, index_t>() &&
-                           std::is_convertible<ColumnExtent, index_t>() &&
+                           std::is_convertible<RowExtent, index_t>::value &&
+                           std::is_convertible<ColumnExtent, index_t>::value &&
                            memory::concept::memory_backend<Allocator>())>
 auto make_matrix(RowExtent num_rows, ColumnExtent num_columns,
                  const Allocator& allocator = Allocator()) {
@@ -206,8 +206,8 @@ auto make_matrix(const Dimensionality<RowExtent, ColumnExtent>& dimensionality,
 template <class Scalar, class RowExtent, class ColumnExtent,
           class Allocator = memory::SimdAllocator<Scalar>,
           CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
-                           std::is_convertible<RowExtent, index_t>() &&
-                           std::is_convertible<ColumnExtent, index_t>() &&
+                           std::is_convertible<RowExtent, index_t>::value &&
+                           std::is_convertible<ColumnExtent, index_t>::value &&
                            memory::concept::memory_backend<Allocator>())>
 auto make_matrix(RowExtent num_rows, ColumnExtent num_columns,
                  const Allocator& allocator = Allocator()) {

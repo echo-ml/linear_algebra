@@ -146,7 +146,7 @@ template <class Scalar, class Structure, class Extent,
           class Allocator = memory::SimdAllocator<Scalar>,
           CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
                            execution_context::concept::structure<Structure>() &&
-                           std::is_convertible<Extent, index_t>() &&
+                           std::is_convertible<Extent, index_t>::value &&
                            memory::concept::memory_backend<Allocator>())>
 auto make_vector(Extent extent, const Allocator& allocator = Allocator()) {
   return make_numeric_array<Scalar, Structure>(make_dimensionality(extent),
@@ -156,7 +156,7 @@ auto make_vector(Extent extent, const Allocator& allocator = Allocator()) {
 template <class Scalar, class Extent,
           class Allocator = memory::SimdAllocator<Scalar>,
           CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
-                           std::is_convertible<Extent, index_t>() &&
+                           std::is_convertible<Extent, index_t>::value &&
                            memory::concept::memory_backend<Allocator>())>
 auto make_vector(Extent extent, const Allocator& allocator = Allocator()) {
   return make_numeric_array<Scalar, structure::general>(
@@ -171,7 +171,8 @@ template <class Scalar, class Structure, class Extent,
                            execution_context::concept::structure<Structure>() &&
                            k_array::concept::static_extent<Extent>())>
 auto make_static_vector(Extent extent) {
-  return make_static_numeric_array<Scalar, Structure>(make_dimensionality(extent));
+  return make_static_numeric_array<Scalar, Structure>(
+      make_dimensionality(extent));
 }
 
 template <class Scalar, class Extent,
@@ -188,7 +189,7 @@ auto make_static_vector(Extent extent) {
 template <class Scalar, class Extent,
           class Allocator = memory::SimdAllocator<Scalar>,
           CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
-                           std::is_convertible<Extent, index_t>() &&
+                           std::is_convertible<Extent, index_t>::value &&
                            memory::concept::memory_backend<Allocator>())>
 auto make_row_vector(Extent extent, const Allocator& allocator = Allocator()) {
   return make_numeric_array<Scalar, structure::matrix_general>(
@@ -206,14 +207,13 @@ auto make_static_row_vector(Extent extent) {
       make_dimensionality(1_index, extent));
 }
 
-
 //------------------------------------------------------------------------------
 // make_column_vector
 //------------------------------------------------------------------------------
 template <class Scalar, class Extent,
           class Allocator = memory::SimdAllocator<Scalar>,
           CONCEPT_REQUIRES(execution_context::concept::scalar<Scalar>() &&
-                           std::is_convertible<Extent, index_t>() &&
+                           std::is_convertible<Extent, index_t>::value &&
                            memory::concept::memory_backend<Allocator>())>
 auto make_column_vector(Extent extent,
                         const Allocator& allocator = Allocator()) {
@@ -231,7 +231,6 @@ auto make_static_column_vector(Extent extent) {
   return make_static_numeric_array<Scalar, structure::matrix_general>(
       make_dimensionality(extent, 1_index));
 }
-
 
 //------------------------------------------------------------------------------
 // get_vector_stride
