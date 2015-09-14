@@ -15,14 +15,17 @@ namespace concept {
 namespace DETAIL_NS {
 struct CompatibleProductShapes : Concept {
   template <class A, class B>
-  auto require(A&& a, B&& b)
-      -> list<same<decltype(get_extent<1>(a)), decltype(get_extent<0>(b))>()>;
+  auto require(A&& a, B&& b) -> list<k_array::concept::compatible_extents<
+      decltype(get_extent<1>(a)), decltype(get_extent<0>(b))>()>;
 
   template <class A, class B, class C>
-  auto require(A&& a, B&& b, C&& c)
-      -> list<same<decltype(get_extent<0>(a)), decltype(get_extent<0>(c))>(),
-              same<decltype(get_extent<1>(a)), decltype(get_extent<0>(b))>(),
-              same<decltype(get_extent<1>(b)), decltype(get_extent<1>(c))>()>;
+  auto require(A&& a, B&& b, C&& c) -> list<
+      k_array::concept::compatible_extents<decltype(get_extent<0>(a)),
+                                           decltype(get_extent<0>(c))>(),
+      k_array::concept::compatible_extents<decltype(get_extent<1>(a)),
+                                           decltype(get_extent<0>(b))>(),
+      k_array::concept::compatible_extents<decltype(get_extent<1>(b)),
+                                           decltype(get_extent<1>(c))>()>;
 };
 }
 
@@ -42,8 +45,8 @@ constexpr bool compatible_product_shapes() {
 namespace DETAIL_NS {
 struct CompatibleRankUpdateShapes : Concept {
   template <class A, class C>
-  auto require(A&& a, C&& c)
-      -> list<same<decltype(get_extent<0>(a)), decltype(get_extent<0>(c))>()>;
+  auto require(A&& a, C&& c) -> list<k_array::concept::compatible_extents<
+      decltype(get_extent<0>(a)), decltype(get_extent<0>(c))>()>;
 };
 }
 
@@ -60,10 +63,12 @@ struct MatrixStrided : Concept {
   template <class T>
   auto require(T&& x)
       -> list<(linear_algebra::concept::matrix<T>() &&
-               same<decltype(get_stride<0>(x)), StaticIndex<1>>()) ||
+               k_array::concept::compatible_extents<decltype(get_stride<0>(x)),
+                                                    StaticIndex<1>>()) ||
               (linear_algebra::concept::weak_matrix<T>() &&
                matrix_traits::operation<T>() != matrix_operation_t::none &&
-               same<decltype(get_stride<1>(x)), StaticIndex<1>>())>;
+               k_array::concept::compatible_extents<decltype(get_stride<1>(x)),
+                                                    StaticIndex<1>>())>;
 };
 }
 
